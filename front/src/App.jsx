@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import Nav from './Nav'
+import { useParams, Link } from 'react-router-dom';
 
 import Hero from './hero'
 import Page2 from './Page2'
