@@ -3,6 +3,8 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { Link } from 'react-router-dom';
+
 function Nav() {
   const [scroll, setScroll] = useState(false);
 
@@ -39,13 +41,21 @@ function Nav() {
             transition={{ duration: 0.3 }}
           >
             <div className='content flex justify-between px-20'>
-              <div className='logo'>FitCraft</div>
+              <div className='logo'>
+                <Link to="/">
+               
+                FitCraft
+                </Link>
+                </div>
               <div className='elements flex gap-6'>
                 <div>
                   Cart
                 </div>
                 <div>
+                  <Link to="/User">
+                  
                   My account
+                  </Link>
                 </div>
               </div>
             </div>

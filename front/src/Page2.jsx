@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './page2.css';
-
+import { Link } from 'react-router-dom';
 function Page2() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
@@ -14,7 +14,7 @@ function Page2() {
     <div className='relative flex flex-col justify-center text-center gap-10 h-screen w-full white'>
       <div className='text-3xl'> Available Designs</div>
 
-      <div className='boxes flex flex-row gap-10 px-5'>
+      <div className='boxes relative flex flex-row gap-10 px-5'>
         {boxes.map((box, index) => (
           <div
             key={box.id}
@@ -28,12 +28,15 @@ function Page2() {
                 <div className='z-1000 text-white flex flex-col gap-50'>
                   <div className='text text-2xl font-bold'>{box.title}</div>
                   <div className='Options flex flex-col gap-5 items-center'>
-                    <button className='text-2xl bg-amber-500 rounded-full py-2 w-[50%] px-2'
-                    
-                    >
+                    <button className='text-xs sm:text-sm md:text-base lg:text-2xl bg-amber-500 rounded-full py-2 w-[50%] px-2'>
+
+                  <Link to={`/store/${box.id} ` } >
+
                       Buy Now
+                      
+</Link>
                     </button>
-                    <button className='text-2xl bg-blue-500 rounded-full py-2 w-[50%] px-2'>
+                    <button className='text-xs sm:text-sm md:text-base lg:text-2xl bg-blue-500 rounded-full py-2 w-[50%] px-2'>
                       Modify
                     </button>
                   </div>

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import Nav from './Nav'
-import { useParams, Link } from 'react-router-dom';
-
+import { useParams, Link } from 'react-router-dom'; 
+import User from "./User"
 import Hero from './hero'
 import Page2 from './Page2'
 function App() {

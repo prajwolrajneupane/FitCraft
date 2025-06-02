@@ -1,5 +1,6 @@
 import React from 'react';
 import video from "./assets/random.mp4"
+import { Link } from 'react-router-dom';
 
 function Hero() {
   return (
@@ -13,11 +14,10 @@ function Hero() {
           playsInline
         >
           <source src={video} type="video/mp4" />
-          Your browser does not support the video tag.
         </video>
         <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50 z-10"></div>
 
-        <div className='absolute text-center top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-white text-1xl '>
+        <div className='absolute text-center top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-white text-xs md:text-base lg:text-lg xl:text-xl  '>
           FitCraft enables users to design personalized wearables using built-in drawing tools, image uploads, or AI-generated graphics.
         </div>
 
@@ -25,9 +25,11 @@ function Hero() {
           FitCraft
         </h1>
 
-        <button className='rounded-full absolute top-[75%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 py-5 px-10 bg-white text-black'>
+         <Link to="/Canvas">
+        <button className='rounded-full cursor-pointer absolute top-[75%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 py-5 px-10 bg-white text-black'>
           Create Now
         </button>
+         </Link>
       </div>
     </>
   );
