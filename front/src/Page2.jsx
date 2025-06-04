@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import './page2.css';
 import { Link } from 'react-router-dom';
+import kp from "./chillguy.png"
 function Page2() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const boxes = [
-    { id: 'b1', title: 'Kp Chill Guy' },
+    { id: 'b1', title: 'Kp Chill Guy', price:"200", rating:"4/5",img:kp },
     { id: 'b2', title: 'kp fataha' },
     { id: 'b3', title: 'raja aau desh bachau' },
   ];
@@ -30,7 +31,7 @@ function Page2() {
                   <div className='Options flex flex-col gap-5 items-center'>
                     <button className='text-xs sm:text-sm md:text-base lg:text-2xl bg-amber-500 rounded-full py-2 w-[50%] px-2'>
 
-                  <Link to={`/store/${box.id} ` } >
+                  <Link to={`/store/${box.id} ` } state={box} >
 
                       Buy Now
                       
