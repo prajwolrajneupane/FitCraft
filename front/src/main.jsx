@@ -6,7 +6,7 @@ import User from './User.jsx'
 import Store from "./Store.jsx"
 import Canvas from './Canvas.jsx'
 import Notfound from './Notfound.jsx'
-
+import Nav from './Nav.jsx'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
@@ -18,10 +18,15 @@ const router=createBrowserRouter([
     path:"/User",element:<User/>
   },
    {
-    path:"/Store/:id",element:<Store/>
+    path:"/Store/:id",element:<>
+   <Nav/>
+    <Store/>
+    </>
   },
    {
-    path:"/Canvas",element:<Canvas/>
+    path:"/Canvas",element:
+    <Canvas/>
+    
   },
    {
     path:"/*",element:<Notfound/>
