@@ -25,7 +25,7 @@ function Hero() {
           FitCraft
         </h1>
 
-         <Link to="/Canvas">
+         <Link to="/Wearables">
         <button className='rounded-full cursor-pointer absolute top-[75%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 py-5 px-10 bg-white text-black'>
           Create Now
         </button>
