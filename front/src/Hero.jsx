@@ -1,5 +1,4 @@
 import React from 'react';
-import video from "./assets/random.mp4"
 import { Link } from 'react-router-dom';
 
 function Hero() {
@@ -13,7 +12,7 @@ function Hero() {
           loop
           playsInline
         >
-          <source src={video} type="video/mp4" />
+          <source src={"/fitcraft.mp4"} type="video/mp4" />
         </video>
         <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50 z-10"></div>
 

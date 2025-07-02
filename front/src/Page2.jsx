@@ -6,9 +6,9 @@ function Page2() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const items = [
-    { id: 'b1',image:"/blackT.png", name: 'Legit Tshirt', price:"200", rating:"4/5",img:blackT },
-    { id: 'b2', image:"/blackT.png",name: 'skibidi',price:"200", rating:"4/5" },
-    { id: 'b3', image:"/chillguy.png",name: 'KpChillGuy',price:"200", rating:"4/5" },
+    { id: 'b1',image:"/blackT.png", name: 'Legit Tshirt', price:"200", rating:"4/5",img:blackT , threeD:"/tshirt.glb" },
+    { id: 'b2', image:"/blackT.png",name: 'skibidi',price:"200", rating:"4/5" , threeD:"/tshirt.glb" },
+    { id: 'b3', image:"/chillguy.png",name: 'KpChillGuy',price:"200", rating:"4/5" , threeD:"/tshirt.glb" },
   ];
 
   return (

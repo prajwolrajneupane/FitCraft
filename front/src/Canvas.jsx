@@ -1,212 +1,408 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Stage, Layer, Line, Image as KonvaImage } from "react-konva";
-import "remixicon/fonts/remixicon.css";
+import React, { useRef, useEffect, useState } from 'react'
+import { Canvas, useLoader, useThree, useFrame } from '@react-three/fiber'
+import { OrbitControls } from '@react-three/drei'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { Box3, Vector3, CanvasTexture } from 'three'
 import { useParams, useLocation } from "react-router-dom";
 
-//this code only gives us a canvas and not a tshirt to draw on rn, this needs to be fixed
-function Canvas() {
-  const { name } = useParams();
+
+function Dress({ color, canvasRef }) {
+    const [bgImage, setBgImage] = useState(null);
+const { name } = useParams();
   const location = useLocation();
   const items = location.state;
 
-  const [undone, setUndone] = useState([]);
-  const [lines, setLines] = useState([]);
-  const [tool, setTool] = useState("Pencil");
-  const [color, setColor] = useState("black");
-  const [chosenSize, setChosenSize] = useState(5);
-  const isDrawing = useRef(false);
 
-  // yesko udyasya vanya:
-  // Starts as false
-  // Can be updated without re-rendering the component
-  //why didnt we used usestate, useref ko satta?:
-  //react state updates are asynchronous, so immediate updation hudaina
-  // useref ma immediate update hunxa tesaile we using it
+  const gltf = useLoader(GLTFLoader, items.threeD)
+  const ref = useRef()
+  const { camera } = useThree();
+  const textureRef = useRef(null)
 
-  const [bgImage, setBgImage] = useState(null);
-  const offscreencanvas = useRef(null);
-  // off screen canvas lai hold garxa vanera lekhya this one
-  const offscreenCtxRef = useRef(null);
-
-  const imgWidth = 600;
-  const imgHeight = 500;
 
   useEffect(() => {
-    const img = new window.Image();
-    img.src = items.image;
-    img.onload = () => {
-      setBgImage(img);
+    if (ref.current) {
+      const box = new Box3().setFromObject(ref.current)
+      const center = new Vector3()
+      const size = new Vector3()
+      box.getCenter(center)
+      box.getSize(size)
 
-      const offCanvas = document.createElement("canvas");
-      offCanvas.width = imgWidth;
-      offCanvas.height = imgHeight;
-      const offCtx = offCanvas.getContext("2d");
-      offCtx.clearRect(0, 0, imgWidth, imgHeight);
-      offCtx.drawImage(img, 0, 0, imgWidth, imgHeight);
+      ref.current.position.sub(center)
 
-      offscreencanvas.current = offCanvas;
-      offscreenCtxRef.current = offCtx;
-    };
-  }, [items.image]);
-
-  const isPixelOpaque = (pos) => {
-    if (!offscreenCtxRef.current) return false;
-    const x = Math.floor(pos.x);
-    const y = Math.floor(pos.y);
-    if (x < 0 || x >= imgWidth || y < 0 || y >= imgHeight) return false;
-
-    const pixel = offscreenCtxRef.current.getImageData(x, y, 1, 1).data;
-    return pixel[3] > 10; // alpha threshold
-  };
-
-  const handleMouseDown = (e) => {
-    const pos = e.target.getStage().getPointerPosition();
-    // getstage vanya yo shape kun Stage ma xa vanera dinxa, getpointerposition vanya tesko co-ordinates haru li, so pos ma, x ra y(mouse position) ko co ordinates haru aauxa
-    if (!isPixelOpaque(pos)) return;
-
-    isDrawing.current = true;
-    setUndone([]); //this is added so that, when the user does undo and draws, redo wwala button kaam nagaros
-    setLines([...lines, { points: [pos.x, pos.y], color, tool, chosenSize }]);
-    // points wala object ra previous lines lai set garira
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDrawing.current) return;
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
-
-    if (!isPixelOpaque(point)) {
-      handleMouseUp();
-      return;
+      const maxDim = Math.max(size.x, size.y, size.z)
+      const cameraZ = maxDim * 2
+      camera.position.set(0, 0, cameraZ)
+      camera.lookAt(0, 0, 0)
     }
+  }, [gltf, camera])
 
-    const lastLine = lines[lines.length - 1]; // last recorded co ordinate herna
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
+  useEffect(() => {
+    if (canvasRef.current) {
+      textureRef.current = new CanvasTexture(canvasRef.current)
+    }
+  }, [canvasRef])
 
-    // console.log(LastLine.points);
-    const newLines = [...lines.slice(0, -1), lastLine]; 
-    // slice chai kina vanda, hamlai chaine jati info is all in lastline, so we removing the info that is storing at the last of the lines array
+  useFrame(() => {
+    if (textureRef.current) {
+      textureRef.current.needsUpdate = true
+    }
+  })
 
-    setLines(newLines);
-  };
+  useEffect(() => {
+    if (ref.current && textureRef.current) {
+      ref.current.traverse((child) => {
+        if (child.isMesh && child.material) {
+          child.material.color.set(color)
+          child.material.map = textureRef.current
+          child.material.needsUpdate = true
+        }
+      })
+    }
+  }, [color])
 
-  const handleMouseUp = () => {
-    isDrawing.current = false;
-  };
-
-  return (
-    <div className="flex flex-col items-center p-4 space-y-4">
-      <Stage
-        width={imgWidth}
-        height={imgHeight}
-        onMouseDown={handleMouseDown}
-        onMousemove={handleMouseMove}
-        onMouseup={handleMouseUp}
-        className="border-2 border-black rounded-md shadow-md"
-      >
-        {/* Background image layer (non-interactive) */}
-        <Layer listening={false}>
-          {bgImage && (
-            <KonvaImage image={bgImage} width={imgWidth} height={imgHeight} />
-          )}
-        </Layer>
-
-        {/* Drawing and erasing layer */}
-        <Layer>
-          {lines.map((line, i) => (
-            <Line
-              key={i}
-              points={line.points}
-              stroke={line.tool === "Eraser" ? "black" : line.color}
-              // so stroke ko color ekcchoti change current color ni sabai change hunxa
-              strokeWidth={line.chosenSize}
-              tension={0.5}
-              lineCap="round"
-              globalCompositeOperation={
-                line.tool === "Eraser" ? "destination-out" : "source-over"
-              }
-            />
-          ))}
-        </Layer>
-      </Stage>
-
-      {/* Tools */}
-      <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2">
-          <span className="text-sm font-medium">Color:</span>
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            className="w-10 h-10 border border-gray-300 rounded-md"
-          />
-        </label>
-
-        <button
-          onClick={() => setTool("Pencil")}
-          className={`p-2 rounded-full text-xl hover:bg-gray-200 transition ${
-            tool === "Pencil" ? "bg-gray-300" : ""
-          }`}
-        >
-          <i className="ri-pencil-fill"></i>
-        </button>
-
-        <button
-          onClick={() => setTool("Eraser")}
-          className={`p-2 rounded-full text-xl hover:bg-gray-200 transition ${
-            tool === "Eraser" ? "bg-gray-300" : ""
-          }`}
-        >
-          <i className="ri-eraser-line"></i>
-        </button>
-      </div>
-
-      {/* Size Options */}
-      <div className="flex gap-6 items-center">
-        {[1, 2, 4].map((size) => (
-          <div
-            key={size}
-            onClick={() => setChosenSize(size)}
-            className={`cursor-pointer transition transform hover:scale-110 border ${
-              chosenSize === size ? "ring-2 ring-blue-500" : "border-gray-400"
-            } rounded-full`}
-            style={{
-              height: 10 + size * 3 + "px",
-              width: 10 + size * 3 + "px",
-              background: "black",
-            }}
-          ></div>
-        ))}
-      </div>
-
-      {/* Undo / Redo Buttons */}
-      <div className="flex gap-4">
-        <button
-          onClick={() => {
-            if (lines.length === 0) return;
-            setUndone([...undone, lines[lines.length - 1]]);
-            const undo = lines.slice(0, -1);
-            setLines(undo);
-          }}
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
-        >
-          Undo
-        </button>
-
-        <button
-          onClick={() => {
-            if (undone.length === 0) return;
-            const lastUndone = undone[undone.length - 1];
-            setLines([...lines, lastUndone]);
-            setUndone(undone.slice(0, -1));
-          }}
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
-        >
-          Redo
-        </button>
-      </div>
-    </div>
-  );
+  return <primitive ref={ref} object={gltf.scene} scale={[0.1, 0.1, 0.1]} />
 }
 
-export default Canvas;
+function App() {
+  const [color, setColor] = useState('#ffffff')
+  const [drawColor, setDrawColor] = useState('#000000')
+  const [mode, setMode] = useState('draw')
+  const canvasRef = useRef(null)
+  const [isDrawing, setIsDrawing] = useState(false)
+  const [lastPos, setLastPos] = useState({ x: 0, y: 0 })
+
+  // Image states
+  const [image, setImage] = useState(null)
+  const [imgPos, setImgPos] = useState({ x: 100, y: 100 })
+  const [imgSize, setImgSize] = useState({ width: 100, height: 100 })
+  const [isDraggingImage, setIsDraggingImage] = useState(false)
+  const [isResizingImage, setIsResizingImage] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [resizeStartPos, setResizeStartPos] = useState({ x: 0, y: 0 })
+  const [startSize, setStartSize] = useState({ width: 0, height: 0 })
+
+  const handleSize = 15
+
+  // Draw canvas content including image and resize handle
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    if (image) {
+      ctx.drawImage(image, imgPos.x, imgPos.y, imgSize.width, imgSize.height)
+
+      // Always draw resize handle for user feedback
+      ctx.fillStyle = 'blue'
+      ctx.fillRect(
+        imgPos.x + imgSize.width - handleSize,
+        imgPos.y + imgSize.height - handleSize,
+        handleSize,
+        handleSize
+      )
+    }
+  }, [image, imgPos, imgSize])
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const img = new Image()
+    img.onload = () => setImage(img)
+    img.src = URL.createObjectURL(file)
+  }
+
+  const isOverResizeHandle = (x, y) => {
+    if (!image) return false
+    return (
+      x >= imgPos.x + imgSize.width - handleSize &&
+      x <= imgPos.x + imgSize.width &&
+      y >= imgPos.y + imgSize.height - handleSize &&
+      y <= imgPos.y + imgSize.height
+    )
+  }
+
+  const startDrawing = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    if (mode === 'resize') {
+      if (isOverResizeHandle(x, y)) {
+        setIsResizingImage(true)
+        setResizeStartPos({ x, y })
+        setStartSize({ ...imgSize })
+        return
+      }
+    }
+
+    if (mode === 'move') {
+      if (
+        image &&
+        x >= imgPos.x &&
+        x <= imgPos.x + imgSize.width &&
+        y >= imgPos.y &&
+        y <= imgPos.y + imgSize.height
+      ) {
+        setIsDraggingImage(true)
+        setDragOffset({ x: x - imgPos.x, y: y - imgPos.y })
+        return
+      }
+    }
+
+    if (mode === 'draw') {
+      setLastPos({ x, y })
+      setIsDrawing(true)
+    }
+  }
+
+  const draw = (e) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    const rect = canvas.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    if (isResizingImage) {
+      const dx = x - resizeStartPos.x
+      const dy = y - resizeStartPos.y
+      const newWidth = Math.max(20, startSize.width + dx)
+      const newHeight = Math.max(20, startSize.height + dy)
+      setImgSize({ width: newWidth, height: newHeight })
+      return
+    }
+
+    if (isDraggingImage) {
+      setImgPos({ x: x - dragOffset.x, y: y - dragOffset.y })
+      return
+    }
+
+    if (isDrawing) {
+      ctx.beginPath()
+      ctx.moveTo(lastPos.x, lastPos.y)
+      ctx.lineTo(x, y)
+      ctx.strokeStyle = drawColor
+      ctx.lineWidth = 5
+      ctx.lineCap = 'round'
+      ctx.stroke()
+      ctx.closePath()
+
+      setLastPos({ x, y })
+    }
+  }
+
+  const stopDrawing = () => {
+    setIsDrawing(false)
+    setIsDraggingImage(false)
+    setIsResizingImage(false)
+  }
+
+  // Update cursor dynamically on mouse move
+  const handleMouseMove = (e) => {
+    if (isDraggingImage || isResizingImage || isDrawing) {
+      draw(e)
+      return
+    }
+
+    const rect = canvasRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    if (mode === 'resize' && isOverResizeHandle(x, y)) {
+      canvasRef.current.style.cursor = 'nwse-resize'
+    } else if (mode === 'move') {
+      if (
+        image &&
+        x >= imgPos.x &&
+        x <= imgPos.x + imgSize.width &&
+        y >= imgPos.y &&
+        y <= imgPos.y + imgSize.height
+      ) {
+        canvasRef.current.style.cursor = 'move'
+      } else {
+        canvasRef.current.style.cursor = 'default'
+      }
+    } else if (mode === 'draw') {
+      canvasRef.current.style.cursor = 'crosshair'
+    } else {
+      canvasRef.current.style.cursor = 'default'
+    }
+  }
+
+  // Touch events (similar to mouse events, for brevity just main logic)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const handleTouchStart = (e) => {
+      const touch = e.touches[0]
+      const rect = canvas.getBoundingClientRect()
+      const x = touch.clientX - rect.left
+      const y = touch.clientY - rect.top
+
+      if (mode === 'resize') {
+        if (isOverResizeHandle(x, y)) {
+          setIsResizingImage(true)
+          setResizeStartPos({ x, y })
+          setStartSize({ ...imgSize })
+          return
+        }
+      }
+
+      if (mode === 'move') {
+        if (
+          image &&
+          x >= imgPos.x &&
+          x <= imgPos.x + imgSize.width &&
+          y >= imgPos.y &&
+          y <= imgPos.y + imgSize.height
+        ) {
+          setIsDraggingImage(true)
+          setDragOffset({ x: x - imgPos.x, y: y - imgPos.y })
+          return
+        }
+      }
+
+      if (mode === 'draw') {
+        setLastPos({ x, y })
+        setIsDrawing(true)
+      }
+    }
+
+    const handleTouchMove = (e) => {
+      if (!canvas) return
+      const touch = e.touches[0]
+      const rect = canvas.getBoundingClientRect()
+      const x = touch.clientX - rect.left
+      const y = touch.clientY - rect.top
+
+      if (isResizingImage) {
+        const dx = x - resizeStartPos.x
+        const dy = y - resizeStartPos.y
+        const newWidth = Math.max(20, startSize.width + dx)
+        const newHeight = Math.max(20, startSize.height + dy)
+        setImgSize({ width: newWidth, height: newHeight })
+        return
+      }
+
+      if (isDraggingImage) {
+        setImgPos({ x: x - dragOffset.x, y: y - dragOffset.y })
+        return
+      }
+
+      if (isDrawing) {
+        const ctx = canvas.getContext('2d')
+        ctx.beginPath()
+        ctx.moveTo(lastPos.x, lastPos.y)
+        ctx.lineTo(x, y)
+        ctx.strokeStyle = drawColor
+        ctx.lineWidth = 5
+        ctx.lineCap = 'round'
+        ctx.stroke()
+        ctx.closePath()
+
+        setLastPos({ x, y })
+      }
+    }
+
+    const handleTouchEnd = () => {
+      setIsDrawing(false)
+      setIsDraggingImage(false)
+      setIsResizingImage(false)
+    }
+
+    canvas.addEventListener('touchstart', handleTouchStart)
+    canvas.addEventListener('touchmove', handleTouchMove)
+    canvas.addEventListener('touchend', handleTouchEnd)
+
+    return () => {
+      canvas.removeEventListener('touchstart', handleTouchStart)
+      canvas.removeEventListener('touchmove', handleTouchMove)
+      canvas.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, [
+    mode,
+    isResizingImage,
+    isDraggingImage,
+    isDrawing,
+    drawColor,
+    lastPos,
+    imgPos,
+    imgSize,
+    dragOffset,
+    resizeStartPos,
+    startSize,
+    image,
+  ])
+
+  return (
+    <>
+      <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 1 }}>
+        <input
+          type="color"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          style={{ marginRight: 10 }}
+          title="T-shirt base color"
+        />
+        <input
+          type="color"
+          value={drawColor}
+          onChange={(e) => setDrawColor(e.target.value)}
+          title="Draw color"
+        />
+
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
+          style={{ marginLeft: 10 }}
+          title="Select mode"
+        >
+          <option value="draw">Draw</option>
+          <option value="move">Move Image</option>
+          <option value="resize">Resize Image</option>
+        </select>
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          style={{ marginLeft: 10 }}
+          title="Upload image to add"
+        />
+      </div>
+
+      <div style={{ display: 'flex', gap: '20px', padding: 20 }}>
+        <canvas
+          ref={canvasRef}
+          width={400}
+          height={400}
+          onMouseDown={startDrawing}
+          onMouseMove={handleMouseMove}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          style={{
+            border: '1px solid black',
+            touchAction: 'none',
+          }}
+        />
+
+        <div style={{ width: '100%', height: '500px' }}>
+          <Canvas camera={{ position: [0, 0, 2], fov: 45 }}>
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[2, 5, 1]} intensity={1.2} />
+            <Dress color={color} canvasRef={canvasRef} />
+            <OrbitControls />
+          </Canvas>
+        </div>
+      </div>
+    </>
+  )
+}
+
+export default App

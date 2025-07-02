@@ -2,9 +2,9 @@ import React from "react";
 import { Link } from 'react-router-dom';
 
 const items = [
-  { name: "T-Shirt", image: "/blackT.png", roll: 10 },
-  { name: "Hoodie", image: "/hoodie.png" },
-  { name: "Cap", image: "/cap.png" },
+  { name: "T-Shirt", image: "/blackT.png", threeD:"/tshirt.glb" },
+  { name: "Hoodie", image: "/hoodie.png" ,threeD:"/hoodie.glb"},
+  { name: "Cap", image: "/cap.png",threeD:"/cap.glb" },
   { name: "Hat", image: "/cap.png" },
   { name: "Shirt", image: "/shirt.png" },
   { name: "Monkey Cap", image: "/monkeycap.png" },
