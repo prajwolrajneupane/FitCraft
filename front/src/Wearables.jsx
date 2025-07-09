@@ -6,7 +6,7 @@ const items = [
   { name: "Hoodie", image: "/hoodie.png" ,threeD:"/hoodie.glb"},
   { name: "Cap", image: "/cap.png",threeD:"/cap.glb" },
   { name: "Hat", image: "/cap.png" },
-  { name: "Shirt", image: "/shirt.png" },
+  { name: "Shirt", image: "/shirt.png",threeD:"/Shirt.glb" },
   { name: "Monkey Cap", image: "/monkeycap.png" },
 ];
 

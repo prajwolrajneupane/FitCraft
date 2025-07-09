@@ -7,9 +7,14 @@ import Store from "./Purchase.jsx"
 import Canvas from './Canvas.jsx'
 import Notfound from './Notfound.jsx'
 import Nav from './Nav.jsx'
-import Wearables from './wearables.jsx'
+import Wearables from './Wearables.jsx'
+
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import Login from './Login/Login.jsx'
+import SignUp from './Login/SignUp.jsx'
+import Details from '../Details.jsx'
+
 
 const router=createBrowserRouter([
   {
@@ -39,6 +44,22 @@ const router=createBrowserRouter([
     <Wearables/>
     
   },
+  {
+    path:"/login",element:
+    <Login/>
+    
+  },
+    {
+    path:"/SignUp",element:
+    <SignUp/>
+    
+  },
+  {
+    path:"/details",element:
+    <Details/>
+    
+  },
+
    {
     path:"/*",element:<Notfound/>
   },
