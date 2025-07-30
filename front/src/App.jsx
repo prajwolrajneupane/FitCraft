@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
-import Nav from './Nav'
+import Nav from './Components/Nav'
 import { useParams, Link } from 'react-router-dom'; 
-import User from "./User"
-import Hero from './hero'
-import Page2 from './Page2'
+import User from "./pages/User"
+import Hero from './Components/hero'
+import Page2 from './pages/Page2'
 function App() {
  return(
 

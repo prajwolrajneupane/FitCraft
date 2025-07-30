@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
+
+  // This will be /User if redirected from Nav
+  const from = location.state?.from
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -12,7 +16,7 @@ export default function Login() {
       const res = await axios.post('http://localhost:5000/api/auth/login', form);
       alert('Login successful!');
       localStorage.setItem('token', res.data.token);
-      navigate('/details');
+      navigate(from); // navigate to the original page
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     }
@@ -22,7 +26,7 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-200 to-purple-300 flex items-center justify-center px-4">
       <div className="bg-white shadow-lg rounded-xl w-full max-w-md p-8 border border-purple-200">
         <h2 className="text-3xl font-bold text-center text-purple-700 mb-6">Login</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <input
             type="email"
