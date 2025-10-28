@@ -6,7 +6,7 @@ function Nav() {
   const [scroll, setScroll] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
-
+  const from = location.state?.from
   // Scroll detection
   useEffect(() => {
     const handleScroll = () => {
@@ -20,7 +20,7 @@ function Nav() {
   const handleAccountClick = () => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/User');
+      navigate("/user");
     } else {
       setShowLoginModal(true);
     }

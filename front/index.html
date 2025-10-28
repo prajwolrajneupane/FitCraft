@@ -1,6 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,5 +11,24 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Example: Hash a message with SHA256
+      const message = "Hello Prajwol!";
+      const hash = CryptoJS.SHA256(message).toString();
+      console.log("SHA256 Hash:", hash);
+
+      // Example: Encrypt and Decrypt using AES
+      const secretKey = "mySecretKey";
+      const encrypted = CryptoJS.AES.encrypt(
+        "This is a secret message",
+        secretKey
+      ).toString();
+      console.log("Encrypted:", encrypted);
+
+      const decrypted = CryptoJS.AES.decrypt(encrypted, secretKey).toString(
+        CryptoJS.enc.Utf8
+      );
+      console.log("Decrypted:", decrypted);
+    </script>
   </body>
 </html>

@@ -1,33 +1,45 @@
+// environment import gareko Luga lighting effect rakhna ho
 import { Environment } from "@react-three/drei";
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-
+import React, { useRef, useEffect, useState, useCallback } from "react";
+//axios is for sending the Luga to the backend
 import axios from "axios";
-import { Canvas, useLoader, useThree, useFrame } from '@react-three/fiber';
+//use loader is for loading the Luga and usethree is for getting the camera anddddd useframe is for updating the texture
+import { Canvas, useLoader, useThree, useFrame } from "@react-three/fiber";
+// orbit controls is for rotating the Luga
+import { OrbitControls } from "@react-three/drei";
+// gltf exporter is for exporting the Luga
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 
-import { OrbitControls } from '@react-three/drei';
-import {GLTFExporter} from  'three/examples/jsm/exporters/GLTFExporter.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { Box3, Vector3, CanvasTexture } from 'three';
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// box3 is for getting the size of the Luga, vector3 is for getting the position of the Luga and  canvastexture is for getting the texture of the Luga
+import { Box3, Vector3, CanvasTexture } from "three";
+//uta bata kun luga select garyo vanera tha pauna lai talako imports
 import { useParams, useLocation, Navigate } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
-import 'remixicon/fonts/remixicon.css';
+//use navigate is for navigating to the details page
+import { useNavigate } from "react-router-dom";
+import "remixicon/fonts/remixicon.css";
 
 import {
-  Stage, Layer, Image as KonvaImage, Transformer, Text, Line,
-} from 'react-konva';
-import { useImage } from 'react-konva-utils';
+  Stage,
+  Layer,
+  Image as KonvaImage,
+  Transformer,
+  Text,
+  Line,
+} from "react-konva";
+import { useImage } from "react-konva-utils";
 
 const CANVAS_SIZE = 600;
 
 // 3d luga harko lagi
-function Dress({ canvasTextures, shirtColor,dressRef }) {
+function Dress({ canvasTextures, shirtColor, dressRef }) {
   const { name } = useParams();
   const location = useLocation();
   const items = location.state;
   const gltf = useLoader(GLTFLoader, items.threeD); //uta bata aairaxa
   const { camera } = useThree();
 
-  // just to center the tshirt biccha ma
+  // just to center the Luga biccha ma
   useEffect(() => {
     if (dressRef.current) {
       const box = new Box3().setFromObject(dressRef.current);
@@ -41,9 +53,9 @@ function Dress({ canvasTextures, shirtColor,dressRef }) {
       camera.lookAt(0, 0, 0);
     }
   }, [gltf, camera]);
-
+  //useframe is for updating the texture
   useFrame(() => {
-    ['Front', 'Back'].forEach((side) => {
+    ["Front", "Back"].forEach((side) => {
       if (canvasTextures[side]) {
         canvasTextures[side].needsUpdate = true;
       }
@@ -84,21 +96,30 @@ function Dress({ canvasTextures, shirtColor,dressRef }) {
     }
   }, [canvasTextures, shirtColor]);
 
-  return <primitive ref={dressRef} object={gltf.scene} scale={[0.1, 0.1, 0.1]} />;
+  return (
+    <primitive ref={dressRef} object={gltf.scene} scale={[0.1, 0.1, 0.1]} />
+  );
 }
 
 // image handler
 function Handler({
-  url,isSelected,onSelect,shapeRef,trRef,tool,imgProps,onChange,
+  url,
+  isSelected,
+  onSelect,
+  shapeRef,
+  trRef,
+  tool,
+  imgProps,
+  onChange,
 }) {
   const [image] = useImage(url);
 
   useEffect(() => {
-    if (isSelected && tool === 'cursor' && trRef.current && shapeRef.current) {
+    if (isSelected && tool === "cursor" && trRef.current && shapeRef.current) {
       trRef.current.nodes([shapeRef.current]); //jaba select hunxa taba transformer pani image ma add on garinxa
-      trRef.current.getLayer().batchDraw();//redraw transformer layer for update
+      trRef.current.getLayer().batchDraw(); //redraw transformer layer for update
     }
-  }, [isSelected, trRef, shapeRef, tool,image]);
+  }, [isSelected, trRef, shapeRef, tool, image]);
 
   if (!image) return null;
 
@@ -111,9 +132,9 @@ function Handler({
         y={imgProps.y}
         width={imgProps.width}
         height={imgProps.height}
-        draggable={tool === 'cursor'}
-        onClick={() => tool === 'cursor' && onSelect()}
-        onTap={() => tool === 'cursor' && onSelect()}
+        draggable={tool === "cursor"}
+        onClick={() => tool === "cursor" && onSelect()}
+        onTap={() => tool === "cursor" && onSelect()}
         onDragEnd={(e) => {
           onChange({
             ...imgProps,
@@ -141,7 +162,7 @@ function Handler({
           });
         }}
       />
-      {isSelected && tool === 'cursor' && <Transformer ref={trRef} />}
+      {isSelected && tool === "cursor" && <Transformer ref={trRef} />}
     </>
   );
 }
@@ -152,7 +173,7 @@ function App() {
 
   const navigate = useNavigate();
 
-  const [activeSide, setActiveSide] = useState('Front');
+  const [activeSide, setActiveSide] = useState("Front");
 
   // Store data separately for Front and Back including image position and size
   const [frontData, setFrontData] = useState({
@@ -169,11 +190,11 @@ function App() {
   });
 
   // Current editor states (point to activeSide data)
-  const data = activeSide === 'Front' ? frontData : backData;
-  const setData = activeSide === 'Front' ? setFrontData : setBackData;
+  const data = activeSide === "Front" ? frontData : backData;
+  const setData = activeSide === "Front" ? setFrontData : setBackData;
 
   // T-shirt color state
-  const [shirtColor, setShirtColor] = useState('#ffffff'); // default white
+  const [shirtColor, seLugaColor] = useState("white"); // default white
 
   // Konva and editor refs and states
   const stageRef = useRef();
@@ -183,63 +204,73 @@ function App() {
   const transformerRefs = useRef({});
   const fileInputRef = useRef();
 
-  const [tool, setTool] = useState('cursor');
-  const [pencilColor, setPencilColor] = useState('#000000');
-  const [textColor, setTextColor] = useState('skyblue');
+  const [tool, setTool] = useState("cursor");
+  const [pencilColor, setPencilColor] = useState("#000000");
+  const [textColor, setTextColor] = useState("skyblue");
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectedTextId, setSelectedTextId] = useState(null);
   const [editingTextId, setEditingTextId] = useState(null);
   const [isImageSelected, setIsImageSelected] = useState(false);
   const [lastPos, setLastPos] = useState(null);
 
+  //----- okay so when the user clicks buy now, the model is downloaded first and sent to the backend to proceed-------//
+  const buyNow = async () => {
+    // Ensure latest Konva drawing is synced
+    syncStageToTexture();
 
-//----- okay so when the user clicks buy now, the model is downloaded first and sent to the backend to proceed-------//
-const buyNow = async () => {
-  // Ensure latest Konva drawing is synced
-  syncStageToTexture();
+    const dressObject = dressRef.current;
+    if (!dressObject) return;
 
-  const dressObject = dressRef.current; 
-  if (!dressObject) return;
+    const exporter = new GLTFExporter();
+    exporter.parse(
+      dressObject,
+      async (result) => {
+        const output = JSON.stringify(result, null, 2);
+        const blob = new Blob([output], { type: "application/json" });
 
-  const exporter = new GLTFExporter();
-  exporter.parse(
-    dressObject,
-    async (result) => {
-      const output = JSON.stringify(result, null, 2);
-      const blob = new Blob([output], { type: 'application/json' });
+        const formData = new FormData();
+        // included filename 'lugaFata.glb' //yo chai naam dya ho so that backend ma ni yo naam ko prayog hos// backend ma heresi dekhinxa
+        formData.append("model", blob, "lugaFata.glb");
+        // "model" lekhya multer ko lagi ho, blob ta luga nei send garya vaigo
 
-      const formData = new FormData();
-      //  included filename 'lugaFata.glb' //yo chai naam dya ho so that backend ma ni yo naam ko prayog hos// backend ma heresi dekhinxa
-      formData.append('model', blob, 'lugaFata.glb');
-      // "model" lekhya multer ko lagi ho, blob ta luga nei send garya vaigo
+        try {
+          const token = localStorage.getItem("token");
+          if (token) {
+            const res = await axios.post(
+              "http://localhost:5000/api/save",
+              formData,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "multipart/form-data",
+                },
+                // exactly what we did for the user page haina, sending the token from the localStorage to backend for user ko Jankari
+                // content type teso chai hamle model singai pathauna parya vayera lekhya (solely for that);
+              }
+            );
 
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.post('http://localhost:5000/api/save', formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-          // exactly what we did for the user page haina, sending the token from the localStorage to backend for user ko Jankari
-          // content type teso chai hamle model singai pathauna parya vayera lekhya(solely for that);
-        });
-        console.log('Upload success:', res.data);
-  
-    navigate('/details');
-      } catch (error) {
-        console.error('Upload failed:', error.response?.data || error.message);
-      }
-    },
-    { binary: false } // false means export as JSON (.gltf), true means binary (.glb)
+            const fileName = res.data.model; // backend returns just filename
+            const modelUrl = `http://localhost:5000/uploads/${fileName}`; // construct full URL
 
-  );
-};
-
+            navigate("/details", { state: { modelUrl } }); // pass model URL to details page
+          } else {
+            navigate("/login");
+          }
+        } catch (error) {
+          console.error(
+            "Upload failed:",
+            error.response?.data || error.message
+          );
+        }
+      },
+      { binary: false } // false means export as JSON (.gltf), true means binary (.glb)
+    );
+  };
 
   // Offscreen canvases for Front and Back for three.js texture source
   const offscreenCanvases = useRef({
-    Front: document.createElement('canvas'),
-    Back: document.createElement('canvas'),
+    Front: document.createElement("canvas"),
+    Back: document.createElement("canvas"),
   });
 
   // Setup offscreen canvases dimensions
@@ -247,8 +278,9 @@ const buyNow = async () => {
     Object.values(offscreenCanvases.current).forEach((c) => {
       c.width = CANVAS_SIZE;
       c.height = CANVAS_SIZE;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#ffffff';
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+
       ctx.fillRect(0, 0, c.width, c.height);
     });
   }, []);
@@ -265,13 +297,13 @@ const buyNow = async () => {
     if (!stage) return;
 
     const offscreenCanvas = offscreenCanvases.current[activeSide];
-    const ctx = offscreenCanvas.getContext('2d');
+    const ctx = offscreenCanvas.getContext("2d");
 
     // Clear
     ctx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
 
     // Draw white background to avoid transparency
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
 
     // Draw Konva stage on offscreen canvas
@@ -290,22 +322,22 @@ const buyNow = async () => {
 
   // Konva Drawing Handlers
   const handleMouseDown = (e) => {
-    if (tool === 'pencil' || tool === 'eraser') {
+    if (tool === "pencil" || tool === "eraser") {
       setIsDrawing(true);
       const pos = e.target.getStage().getPointerPosition();
       setLastPos(pos);
       //yeta k va vanda:
       // setData ma either front ya back xa
-      // so hamle konva image vitra, tools harko jankari lera 
+      // so hamle konva image vitra, tools harko jankari lera
       setData((prev) => ({
         ...prev,
-    
+
         lines: [
           ...prev.lines,
           {
             tool,
             points: [pos.x, pos.y],
-            stroke: tool === 'eraser' ? null : pencilColor,
+            stroke: tool === "eraser" ? null : pencilColor,
           },
         ],
       }));
@@ -348,11 +380,17 @@ const buyNow = async () => {
     });
     setIsImageSelected(true);
   };
-  const hasContent = data.lines.length > 0 || data.texts.length > 0 || data.imgUrl !== null;
+  const hasContent =
+    data.lines.length > 0 || data.texts.length > 0 || data.imgUrl !== null;
 
   // Clear canvas (for active side)
   const clearCanvas = () => {
-    setData({ lines: [], texts: [], imgUrl: null, imgProps: { x: 50, y: 50, width: 200, height: 200 } });
+    setData({
+      lines: [],
+      texts: [],
+      imgUrl: null,
+      imgProps: { x: 50, y: 50, width: 200, height: 200 },
+    });
     setSelectedTextId(null);
     setEditingTextId(null);
     setIsImageSelected(false);
@@ -362,7 +400,7 @@ const buyNow = async () => {
   // Keyboard events for deleting selected text or image, finishing text edit
   useEffect(() => {
     const onKeyDown = (e) => {
-      if (e.key === 'Delete') {
+      if (e.key === "Delete") {
         if (isImageSelected) {
           setData({ ...data, imgUrl: null });
           setIsImageSelected(false);
@@ -377,20 +415,20 @@ const buyNow = async () => {
           setEditingTextId(null);
         }
       }
-      if (e.key === 'Enter' && editingTextId) {
+      if (e.key === "Enter" && editingTextId) {
         e.preventDefault();
         setEditingTextId(null);
       }
     };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [data, isImageSelected, selectedTextId, editingTextId]);
 
   // When text selected, attach transformer
   useEffect(() => {
     if (
       selectedTextId &&
-      tool === 'cursor' &&
+      tool === "cursor" &&
       transformerRefs.current[selectedTextId] &&
       textRefs.current[selectedTextId]
     ) {
@@ -408,7 +446,14 @@ const buyNow = async () => {
       ...data,
       texts: [
         ...data.texts,
-        { id: newId, text: 'New Text', x: 60, y: 60, fontSize: 30, fill: textColor },
+        {
+          id: newId,
+          text: "New Text",
+          x: 60,
+          y: 60,
+          fontSize: 30,
+          fill: textColor,
+        },
       ],
     });
     setSelectedTextId(newId);
@@ -417,7 +462,7 @@ const buyNow = async () => {
 
   // Start editing text
   const startTextEditing = (id) => {
-    if (tool !== 'cursor') return;
+    if (tool !== "cursor") return;
     setEditingTextId(id);
   };
 
@@ -459,9 +504,9 @@ const buyNow = async () => {
 
   // Cursor style for konva stage based on tool
   const getCursor = () => {
-    if (tool === 'pencil') return 'crosshair';
-    if (tool === 'eraser') return 'cell';
-    return 'default';
+    if (tool === "pencil") return "crosshair";
+    if (tool === "eraser") return "cell";
+    return "default";
   };
 
   return (
@@ -470,18 +515,19 @@ const buyNow = async () => {
       <div className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-md px-6 py-3 flex flex-wrap items-center justify-between font-sans select-none">
         {/* Left side: Side selector */}
         <div className="flex gap-3 items-center">
-          <strong className="hidden sm:block mr-2 text-gray-700 font-semibold">Side:</strong>
-          {['Front', 'Back'].map((side) => (
+          <strong className="hidden sm:block mr-2 text-gray-700 font-semibold">
+            Side:
+          </strong>
+          {["Front", "Back"].map((side) => (
             <button
               key={side}
               onClick={() => setActiveSide(side)}
-              className={`px-3 py-1 rounded-md border transition text-sm
+              className={`px-3 py-1 rounded-md border transition text-sm 
                 ${
                   activeSide === side
-                    ? 'font-bold border-indigo-600 bg-indigo-100'
-                    : 'border-gray-300 hover:bg-gray-100'
-                }`}
-            >
+                    ? "font-bold border-indigo-600 bg-indigo-100"
+                    : "border-gray-300 hover:bg-gray-100"
+                }`}>
               {side}
             </button>
           ))}
@@ -489,8 +535,10 @@ const buyNow = async () => {
 
         {/* Middle: Tool selector */}
         <div className="flex gap-3 items-center mt-2 sm:mt-0">
-          <strong className="hidden sm:block mr-2 text-gray-700 font-semibold">Tool:</strong>
-          {['cursor', 'pencil', 'eraser'].map((t) => (
+          <strong className="hidden sm:block mr-2 text-gray-700 font-semibold">
+            Tool:
+          </strong>
+          {["cursor", "pencil", "eraser"].map((t) => (
             <button
               key={t}
               onClick={() => setTool(t)}
@@ -498,39 +546,51 @@ const buyNow = async () => {
               className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition
                 ${
                   tool === t
-                    ? 'bg-indigo-600 text-white border-indigo-700'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                }`}
-            >
-              {t === 'cursor' ? 
+                    ? "bg-indigo-600 text-white border-indigo-700"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                }`}>
+              {t === "cursor" ? (
                 <i className="ri-cursor-fill"></i>
-              : t === 'pencil' ? <i className="ri-edit-fill"></i> : <i className="ri-eraser-fill"></i>}
+              ) : t === "pencil" ? (
+                <i className="ri-edit-fill"></i>
+              ) : (
+                <i className="ri-eraser-fill"></i>
+              )}
             </button>
           ))}
         </div>
 
         {/* Right side: Color pickers and clear */}
         <div className="flex gap-3 items-center mt-2 sm:mt-0">
-          <label className="flex items-center gap-1 cursor-pointer" title="Pencil Color">
-            <span className="hidden sm:inline font-semibold text-gray-700">Pencil:</span>
+          <label
+            className="flex items-center gap-1 cursor-pointer"
+            title="Pencil Color">
+            <span className="hidden sm:inline font-semibold text-gray-700">
+              Pencil:
+            </span>
             <input
               type="color"
               value={pencilColor}
               onChange={(e) => setPencilColor(e.target.value)}
-              disabled={tool === 'eraser'}
+              disabled={tool === "eraser"}
               className={`w-8 h-8 p-0 border rounded cursor-pointer ${
-                tool === 'eraser' ? 'cursor-not-allowed opacity-50' : ''
+                tool === "eraser" ? "cursor-not-allowed opacity-50" : ""
               }`}
             />
           </label>
 
-          <label className="flex items-center gap-1 cursor-pointer" title="Text Color">
-            <span className="hidden sm:inline font-semibold text-gray-700">Text:</span>
+          <label
+            className="flex items-center gap-1 cursor-pointer"
+            title="Text Color">
+            <span className="hidden sm:inline font-semibold text-gray-700">
+              Text:
+            </span>
             <input
               type="color"
               value={
                 selectedTextId
-                  ? data.texts.find((t) => t.id === selectedTextId)?.fill || textColor
+                  ? data.texts.find((t) => t.id === selectedTextId)?.fill ||
+                    textColor
                   : textColor
               }
               onChange={(e) => {
@@ -545,20 +605,24 @@ const buyNow = async () => {
                   });
                 }
               }}
-              disabled={tool !== 'cursor'}
+              disabled={tool !== "cursor"}
               className={`w-8 h-8 p-0 border rounded cursor-pointer ${
-                tool !== 'cursor' ? 'cursor-not-allowed opacity-50' : ''
+                tool !== "cursor" ? "cursor-not-allowed opacity-50" : ""
               }`}
             />
           </label>
 
           {/* Shirt Color Picker */}
-          <label className="flex items-center gap-1 cursor-pointer" title="T-Shirt Color">
-            <span className="hidden sm:inline font-semibold text-gray-700">Shirt:</span>
+          <label
+            className="flex items-center gap-1 cursor-pointer"
+            title="T-Shirt Color">
+            <span className="hidden sm:inline font-semibold text-gray-700">
+              Shirt:
+            </span>
             <input
               type="color"
               value={shirtColor}
-              onChange={(e) => setShirtColor(e.target.value)}
+              onChange={(e) => seLugaColor(e.target.value)}
               className="w-8 h-8 p-0 border rounded cursor-pointer"
             />
           </label>
@@ -569,26 +633,23 @@ const buyNow = async () => {
             title="Clear Canvas"
             className={`px-3 py-1 rounded-md text-sm border transition ${
               hasContent
-                ? 'bg-red-500 text-white border-red-600 hover:bg-red-600'
-                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-            }`}
-          >
+                ? "bg-red-500 text-white border-red-600 hover:bg-red-600"
+                : "bg-gray-200 text-gray-500 cursor-not-allowed"
+            }`}>
             Clear
           </button>
 
           <button
             onClick={() => fileInputRef.current && fileInputRef.current.click()}
             title="Upload Image"
-            className="px-3 py-1 rounded-md text-sm border border-gray-400 hover:bg-gray-100"
-          >
+            className="px-3 py-1 rounded-md text-sm border border-gray-400 hover:bg-gray-100">
             Upload Image
           </button>
 
           <button
             onClick={addNewText}
             title="Add Text"
-            className="px-3 py-1 rounded-md text-sm border border-gray-400 hover:bg-gray-100"
-          >
+            className="px-3 py-1 rounded-md text-sm border border-gray-400 hover:bg-gray-100">
             Add Text
           </button>
         </div>
@@ -598,7 +659,7 @@ const buyNow = async () => {
       <input
         type="file"
         accept="image/*"
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         ref={fileInputRef}
         onChange={handleFile}
       />
@@ -606,10 +667,9 @@ const buyNow = async () => {
       {/* Main content area */}
       <div
         className="flex flex-col md:flex-row items-center justify-center gap-6 p-6 pt-20"
-        style={{ minHeight: 'calc(100vh - 64px)' }}
-      >
+        style={{ minHeight: "calc(100vh - 64px)" }}>
         {/* 2D canvas editor on left */}
-        <div className="border rounded-lg shadow-lg bg-white">
+        <div className="border rounded-lg shadow-lg bg-pink-300">
           <Stage
             width={CANVAS_SIZE}
             height={CANVAS_SIZE}
@@ -620,20 +680,23 @@ const buyNow = async () => {
             onTouchMove={handleMouseMove}
             onTouchEnd={handleMouseUp}
             ref={stageRef}
-            style={{ cursor: getCursor() }}
-          >
+            style={{ cursor: getCursor() }}>
             <Layer>
               {/* Draw all lines */}
               {data.lines.map((line, i) => (
                 <Line
                   key={i}
                   points={line.points}
-                  stroke={line.tool === 'eraser' ? '#ffffff' : line.stroke || pencilColor}
+                  stroke={
+                    line.tool === "eraser"
+                      ? "#ffffff"
+                      : line.stroke || pencilColor
+                  }
                   strokeWidth={3}
                   tension={0.5}
                   lineCap="round"
                   globalCompositeOperation={
-                    line.tool === 'eraser' ? 'destination-out' : 'source-over'
+                    line.tool === "eraser" ? "destination-out" : "source-over"
                   }
                 />
               ))}
@@ -644,7 +707,7 @@ const buyNow = async () => {
                   url={data.imgUrl}
                   isSelected={isImageSelected}
                   onSelect={() => {
-                    if (tool === 'cursor') {
+                    if (tool === "cursor") {
                       setIsImageSelected(true);
                       setSelectedTextId(null);
                       setEditingTextId(null);
@@ -654,7 +717,9 @@ const buyNow = async () => {
                   trRef={imageTransformerRef}
                   tool={tool}
                   imgProps={data.imgProps}
-                  onChange={(newProps) => setData({ ...data, imgProps: newProps })}
+                  onChange={(newProps) =>
+                    setData({ ...data, imgProps: newProps })
+                  }
                 />
               )}
 
@@ -668,16 +733,16 @@ const buyNow = async () => {
                   y={text.y}
                   fontSize={text.fontSize}
                   fill={text.fill}
-                  draggable={tool === 'cursor'}
+                  draggable={tool === "cursor"}
                   onClick={() => {
-                    if (tool === 'cursor') {
+                    if (tool === "cursor") {
                       setSelectedTextId(text.id);
                       setEditingTextId(null);
                       setIsImageSelected(false);
                     }
                   }}
                   onTap={() => {
-                    if (tool === 'cursor') {
+                    if (tool === "cursor") {
                       setSelectedTextId(text.id);
                       setEditingTextId(null);
                       setIsImageSelected(false);
@@ -710,25 +775,29 @@ const buyNow = async () => {
           {editingTextId && (
             <textarea
               style={{
-                position: 'absolute',
-                top: textRefs.current[editingTextId]?.getAbsolutePosition()?.y + 60,
-                left: textRefs.current[editingTextId]?.getAbsolutePosition()?.x + 20,
+                position: "absolute",
+                top:
+                  textRefs.current[editingTextId]?.getAbsolutePosition()?.y +
+                  60,
+                left:
+                  textRefs.current[editingTextId]?.getAbsolutePosition()?.x +
+                  20,
                 fontSize: textRefs.current[editingTextId]?.fontSize() || 20,
-                border: '1px solid #ccc',
-                padding: '4px',
-                background: 'white',
-                outline: 'none',
-                resize: 'none',
-                fontFamily: 'Arial',
+                border: "1px solid #ccc",
+                padding: "4px",
+                background: "white",
+                outline: "none",
+                resize: "none",
+                fontFamily: "Arial",
                 zIndex: 1000,
                 minWidth: 100,
                 maxWidth: 400,
               }}
-              value={data.texts.find((t) => t.id === editingTextId)?.text || ''}
+              value={data.texts.find((t) => t.id === editingTextId)?.text || ""}
               onChange={(e) => changeText(editingTextId, e.target.value)}
               onBlur={() => setEditingTextId(null)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   e.preventDefault();
                   setEditingTextId(null);
                 }
@@ -739,27 +808,32 @@ const buyNow = async () => {
         </div>
 
         {/* 3D preview on right */}
-        <div className="border rounded-lg shadow-lg bg-white" style={{ width: CANVAS_SIZE, height: CANVAS_SIZE }}>
-          <Canvas shadows>
-             <Environment preset="sunset" />
-            <ambientLight intensity={0.} />
+        <div
+          className="border rounded-lg shadow-lg bg-pink-300"
+          style={{ width: CANVAS_SIZE, height: CANVAS_SIZE }}>
+          <Canvas shadows flat>
+            <Environment preset="sunset" />
+            <ambientLight intensity={0} />
             <directionalLight position={[10, 10, 10]} intensity={1} />
-            <Dress dressRef={dressRef} canvasTextures={canvasTextures.current} shirtColor={shirtColor} />
-            <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
+            <Dress
+              dressRef={dressRef}
+              canvasTextures={canvasTextures.current}
+              shirtColor={shirtColor}
+            />
+            <OrbitControls
+              enablePan={true}
+              enableZoom={true}
+              enableRotate={true}
+            />
           </Canvas>
         </div>
-        
       </div>
 
-        <button
-  onClick={buyNow}
-  className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition"
->
-  Buy Now
-
-
-</button>
-
+      <button
+        onClick={buyNow}
+        className="bg-green-600 hover:bg-green-700 ml-145 bottom-2 relative text-white font-bold py-3 px-6 rounded-lg shadow-md transition">
+        Buy Now
+      </button>
     </>
   );
 }
