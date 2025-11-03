@@ -1,10 +1,19 @@
 import express from "express";
+// done cause needed
 import mongoose from "mongoose";
+// done cause needed
+
 import cors from "cors";
+// front ra back kura garna milos vanera. CORS is basically set of rules which allows back and front to communicate,
 import dotenv from "dotenv";
+// chairakhne data haru euta thau ma xa and thats dotenv
 import multer from "multer";
+// needed to upload photos videos and shit like that.Its a middleware
 import jwt from "jsonwebtoken";
+// Used for generating and verifying JSON Web Tokens (JWTs), essential for user authentication.
 import ApprovedDesignModel from "./models/ApprovedDesign.model.js";
+// User le allow thicheko designs haru ko structure.
+
 // eSewa import
 import { generateSignature } from "./routes/utils/generateSignature.js";
 
@@ -13,12 +22,14 @@ import User from "./models/User.js";
 import verifyToken from "./middleware/verifyToken.js";
 
 dotenv.config();
+// done cause needed
 const app = express();
+// done cause needed
 
 // Middleware
 app.use(cors());
+// this simply means use cors.. we have no parameter so no rules on how back and front will be comminicating.
 app.use(express.json());
-
 // Serve uploaded files statically
 app.use("/uploads", express.static("uploads"));
 
