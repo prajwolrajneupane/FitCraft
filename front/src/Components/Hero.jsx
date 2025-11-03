@@ -12,12 +12,8 @@ function Hero() {
 
       {/* Title */}
       <h1 className="z-20 text-6xl md:text-7xl font-extrabold tracking-wide flex items-center gap-2">
-        <span className="text-[#00BFFF] drop-shadow-[0_0_10px_#00BFFF]">
-          Fit
-        </span>
-        <span className="text-[#9810FA] drop-shadow-[0_0_10px_#9810FA]">
-          Craft
-        </span>
+        <span className="text-teal-500 ">Fit</span>
+        <span className="text-white ">Craft</span>
       </h1>
 
       {/* Tagline */}
