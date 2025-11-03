@@ -1,4 +1,3 @@
-// environment import gareko Luga lighting effect rakhna ho
 import { Environment } from "@react-three/drei";
 import React, { useRef, useEffect, useState, useCallback } from "react";
 //axios is for sending the Luga to the backend
@@ -11,7 +10,7 @@ import { OrbitControls } from "@react-three/drei";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-// box3 is for getting the size of the Luga, vector3 is for getting the position of the Luga and  canvastexture is for getting the texture of the Luga
+// box3 is for getting the size of the Luga, vector3 is for getting the position of the Luga and  canvastexture is for getting the texture of the Luga
 import { Box3, Vector3, CanvasTexture } from "three";
 //uta bata kun luga select garyo vanera tha pauna lai talako imports
 import { useParams, useLocation, Navigate } from "react-router-dom";
@@ -242,7 +241,7 @@ function App() {
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
-                  "Content-Type": "multipart/form-data",
+                  "Content-Type": "multipart/form-form-data",
                 },
                 // exactly what we did for the user page haina, sending the token from the localStorage to backend for user ko Jankari
                 // content type teso chai hamle model singai pathauna parya vayera lekhya (solely for that);
@@ -510,23 +509,26 @@ function App() {
   };
 
   return (
-    <>
+    // Set a dark background for the whole page (similar to your footer)
+    <div className="min-h-screen bg-gray-900 text-gray-100 font-sans">
       {/* Sticky Navbar Controls */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-md px-6 py-3 flex flex-wrap items-center justify-between font-sans select-none">
+      {/* Use a dark background for the control panel */}
+      <div className="fixed top-0 left-0 right-0 z-40 bg-gray-800 border-b border-teal-500/50 shadow-2xl px-6 py-3 flex flex-wrap items-center justify-between font-sans select-none">
         {/* Left side: Side selector */}
         <div className="flex gap-3 items-center">
-          <strong className="hidden sm:block mr-2 text-gray-700 font-semibold">
+          <strong className="hidden sm:block mr-2 text-gray-200 font-semibold">
             Side:
           </strong>
           {["Front", "Back"].map((side) => (
             <button
               key={side}
               onClick={() => setActiveSide(side)}
-              className={`px-3 py-1 rounded-md border transition text-sm 
+              className={`px-3 py-1 rounded-full border transition text-sm 
                 ${
+                  // Use teal/indigo accents for selection
                   activeSide === side
-                    ? "font-bold border-indigo-600 bg-indigo-100"
-                    : "border-gray-300 hover:bg-gray-100"
+                    ? "font-bold border-teal-400 bg-teal-600 text-white shadow-md"
+                    : "border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-teal-500"
                 }`}>
               {side}
             </button>
@@ -535,7 +537,7 @@ function App() {
 
         {/* Middle: Tool selector */}
         <div className="flex gap-3 items-center mt-2 sm:mt-0">
-          <strong className="hidden sm:block mr-2 text-gray-700 font-semibold">
+          <strong className="hidden sm:block mr-2 text-gray-200 font-semibold">
             Tool:
           </strong>
           {["cursor", "pencil", "eraser"].map((t) => (
@@ -543,11 +545,12 @@ function App() {
               key={t}
               onClick={() => setTool(t)}
               title={t}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition
                 ${
+                  // Use a dark button style with teal/indigo for selection
                   tool === t
-                    ? "bg-indigo-600 text-white border-indigo-700"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                    ? "bg-indigo-500 text-white shadow-xl shadow-indigo-500/30"
+                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                 }`}>
               {t === "cursor" ? (
                 <i className="ri-cursor-fill"></i>
@@ -560,12 +563,12 @@ function App() {
           ))}
         </div>
 
-        {/* Right side: Color pickers and clear */}
+        {/* Right side: Color pickers and clear/add buttons */}
         <div className="flex gap-3 items-center mt-2 sm:mt-0">
           <label
             className="flex items-center gap-1 cursor-pointer"
             title="Pencil Color">
-            <span className="hidden sm:inline font-semibold text-gray-700">
+            <span className="hidden sm:inline font-semibold text-gray-400">
               Pencil:
             </span>
             <input
@@ -573,7 +576,7 @@ function App() {
               value={pencilColor}
               onChange={(e) => setPencilColor(e.target.value)}
               disabled={tool === "eraser"}
-              className={`w-8 h-8 p-0 border rounded cursor-pointer ${
+              className={`w-8 h-8 p-0 border-2 border-gray-600 rounded cursor-pointer ${
                 tool === "eraser" ? "cursor-not-allowed opacity-50" : ""
               }`}
             />
@@ -582,7 +585,7 @@ function App() {
           <label
             className="flex items-center gap-1 cursor-pointer"
             title="Text Color">
-            <span className="hidden sm:inline font-semibold text-gray-700">
+            <span className="hidden sm:inline font-semibold text-gray-400">
               Text:
             </span>
             <input
@@ -606,7 +609,7 @@ function App() {
                 }
               }}
               disabled={tool !== "cursor"}
-              className={`w-8 h-8 p-0 border rounded cursor-pointer ${
+              className={`w-8 h-8 p-0 border-2 border-gray-600 rounded cursor-pointer ${
                 tool !== "cursor" ? "cursor-not-allowed opacity-50" : ""
               }`}
             />
@@ -616,14 +619,14 @@ function App() {
           <label
             className="flex items-center gap-1 cursor-pointer"
             title="T-Shirt Color">
-            <span className="hidden sm:inline font-semibold text-gray-700">
+            <span className="hidden sm:inline font-semibold text-gray-400">
               Shirt:
             </span>
             <input
               type="color"
               value={shirtColor}
               onChange={(e) => seLugaColor(e.target.value)}
-              className="w-8 h-8 p-0 border rounded cursor-pointer"
+              className="w-8 h-8 p-0 border-2 border-gray-600 rounded cursor-pointer"
             />
           </label>
 
@@ -631,10 +634,11 @@ function App() {
             onClick={clearCanvas}
             disabled={!hasContent}
             title="Clear Canvas"
-            className={`px-3 py-1 rounded-md text-sm border transition ${
+            className={`px-3 py-1 rounded-md text-sm border transition 
+            ${
               hasContent
-                ? "bg-red-500 text-white border-red-600 hover:bg-red-600"
-                : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                ? "bg-red-600 text-white border-red-700 hover:bg-red-700"
+                : "bg-gray-700 text-gray-500 cursor-not-allowed border-gray-600"
             }`}>
             Clear
           </button>
@@ -642,14 +646,14 @@ function App() {
           <button
             onClick={() => fileInputRef.current && fileInputRef.current.click()}
             title="Upload Image"
-            className="px-3 py-1 rounded-md text-sm border border-gray-400 hover:bg-gray-100">
-            Upload Image
+            className="px-3 py-1 rounded-md text-sm border border-teal-500 text-teal-400 hover:bg-teal-500 hover:text-white transition">
+            Upload
           </button>
 
           <button
             onClick={addNewText}
             title="Add Text"
-            className="px-3 py-1 rounded-md text-sm border border-gray-400 hover:bg-gray-100">
+            className="px-3 py-1 rounded-md text-sm border border-indigo-500 text-indigo-400 hover:bg-indigo-500 hover:text-white transition">
             Add Text
           </button>
         </div>
@@ -666,10 +670,10 @@ function App() {
 
       {/* Main content area */}
       <div
-        className="flex flex-col md:flex-row items-center justify-center gap-6 p-6 pt-20"
+        className="flex flex-col md:flex-row items-center justify-center gap-8 p-6 pt-28"
         style={{ minHeight: "calc(100vh - 64px)" }}>
         {/* 2D canvas editor on left */}
-        <div className="border rounded-lg shadow-lg bg-pink-300">
+        <div className="border border-gray-700 rounded-lg shadow-2xl shadow-black/50 overflow-hidden">
           <Stage
             width={CANVAS_SIZE}
             height={CANVAS_SIZE}
@@ -680,7 +684,8 @@ function App() {
             onTouchMove={handleMouseMove}
             onTouchEnd={handleMouseUp}
             ref={stageRef}
-            style={{ cursor: getCursor() }}>
+            // Set the background color to white to match the Konva canvas export
+            style={{ cursor: getCursor(), backgroundColor: "white" }}>
             <Layer>
               {/* Draw all lines */}
               {data.lines.map((line, i) => (
@@ -776,12 +781,20 @@ function App() {
             <textarea
               style={{
                 position: "absolute",
+                // Note: Konva's getAbsolutePosition() works best when the stage is the only Konva element.
+                // Adjusting the offset based on your layout's fixed elements and padding might be needed.
+                // For a quick fix, let's calculate the position relative to the Stage component's parent div.
+                // The existing calculation is relative to the *viewport* and relies on the Stage being placed at a fixed offset.
+                // Since the parent is `position: relative` via its class, you might need to find its bounding box.
+                // For now, retaining the previous calculation with an educated offset guess based on the 'pt-28' and 'px-6' from the main container.
                 top:
-                  textRefs.current[editingTextId]?.getAbsolutePosition()?.y +
-                  60,
+                  (textRefs.current[editingTextId]?.getAbsolutePosition()?.y ||
+                    0) +
+                  28 * 4, // approx 112px for pt-28
                 left:
-                  textRefs.current[editingTextId]?.getAbsolutePosition()?.x +
-                  20,
+                  (textRefs.current[editingTextId]?.getAbsolutePosition()?.x ||
+                    0) +
+                  6 * 4, // approx 24px for px-6
                 fontSize: textRefs.current[editingTextId]?.fontSize() || 20,
                 border: "1px solid #ccc",
                 padding: "4px",
@@ -809,12 +822,13 @@ function App() {
 
         {/* 3D preview on right */}
         <div
-          className="border rounded-lg shadow-lg bg-pink-300"
+          className="border border-gray-700 rounded-lg shadow-2xl shadow-black/50 overflow-hidden"
           style={{ width: CANVAS_SIZE, height: CANVAS_SIZE }}>
           <Canvas shadows flat>
-            <Environment preset="sunset" />
-            <ambientLight intensity={0} />
-            <directionalLight position={[10, 10, 10]} intensity={1} />
+            {/* The background environment is great for lighting and shadows */}
+            <Environment preset="city" />
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[10, 10, 10]} intensity={1.5} />
             <Dress
               dressRef={dressRef}
               canvasTextures={canvasTextures.current}
@@ -829,12 +843,16 @@ function App() {
         </div>
       </div>
 
-      <button
-        onClick={buyNow}
-        className="bg-green-600 hover:bg-green-700 ml-145 bottom-2 relative text-white font-bold py-3 px-6 rounded-lg shadow-md transition">
-        Buy Now
-      </button>
-    </>
+      {/* Buy Now Button - Centered and prominent at the bottom */}
+      <div className="flex justify-center p-6">
+        <button
+          onClick={buyNow}
+          // Use a dark background with the teal accent color from the main site
+          className="bg-teal-600 hover:bg-teal-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-2xl shadow-teal-500/50 transition-all duration-300 transform hover:scale-105">
+          Buy Now
+        </button>
+      </div>
+    </div>
   );
 }
 

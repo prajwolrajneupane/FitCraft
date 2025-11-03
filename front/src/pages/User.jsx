@@ -57,6 +57,12 @@ function User() {
     Navigate("/details", (modwal = { modwal }));
   };
 
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    Navigate("/login");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200">
@@ -102,7 +108,21 @@ function User() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl p-8 sm:p-10 lg:p-12 border border-purple-200">
+      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl p-8 sm:p-10 lg:p-12 border border-purple-200 relative">
+        {/* Back & Logout buttons */}
+        <div className="absolute top-6 right-6 flex space-x-3">
+          <Link
+            to="/"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-full shadow-sm transition">
+            ← Back
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-full shadow-sm transition">
+            Logout
+          </button>
+        </div>
+
         {/* User Info */}
         <div className="flex flex-col items-center mb-12 border-b pb-8 border-gray-200">
           <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-600 to-indigo-500 flex items-center justify-center shadow-xl text-white text-7xl font-extrabold select-none ring-4 ring-purple-300 ring-offset-2">

@@ -5,6 +5,22 @@ import { OrbitControls } from "@react-three/drei";
 import Luga from "./Luga";
 import KinaAais from "./KinaAais.jsx";
 
+// 💡 Using a minimal icon for the design name modal (Heroicons style)
+const PencilIcon = () => (
+  <svg
+    className="w-6 h-6 text-indigo-500 mx-auto mb-3"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+  </svg>
+);
+
 const Details = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,47 +67,51 @@ const Details = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-200 to-purple-300 flex items-center justify-center p-6 relative">
-      {/* Design Name Modal */}
+    // Minimal background with soft slate color
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6 relative">
+      {/* 📝 Design Name Modal (Minimal & Elegant) */}
       {showNamePrompt && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/10">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md text-center">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-20 backdrop-blur-sm">
+          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center transform scale-100 transition duration-300 border border-gray-100">
             {!wantsToName ? (
               <>
-                <h2 className="text-xl font-semibold text-purple-700 mb-2">
-                  Would you like to name your design?
+                <PencilIcon />
+                <h2 className="text-xl font-bold text-gray-800 mb-2">
+                  Name Your Creation?
                 </h2>
-                <p className="mb-4 text-gray-600">
-                  This helps you organize your orders better.
+                <p className="mb-6 text-gray-500 text-sm">
+                  Give your unique design a name for easy reference in your
+                  orders.
                 </p>
-                <div className="flex justify-center gap-4">
+                <div className="flex justify-center gap-3">
                   <button
                     onClick={() => setWantsToName(true)}
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
-                    Yes
+                    className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition shadow-md">
+                    Yes, Name It
                   </button>
                   <button
                     onClick={() => setShowNamePrompt(false)}
-                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition">
-                    No
+                    className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300 transition">
+                    Skip
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <h2 className="text-xl font-semibold text-purple-700 mb-2">
-                  Enter a name for your design
+                <h2 className="text-xl font-bold text-gray-800 mb-2">
+                  Enter Design Name
                 </h2>
                 <input
                   type="text"
                   value={designName}
                   onChange={(e) => setDesignName(e.target.value)}
                   placeholder="My Custom T-Shirt"
-                  className="w-full px-4 py-2 border border-purple-300 rounded-lg shadow-sm mb-4"
+                  // Clean input style
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-inner text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <button
                   onClick={handleDesignNameSubmit}
-                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition w-full"
+                  className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition w-full font-semibold shadow-md"
                   disabled={!designName.trim()}>
                   Save & Continue
                 </button>
@@ -101,111 +121,126 @@ const Details = () => {
         </div>
       )}
 
-      {/* Main Form + Preview */}
+      {/* 🛒 Main Form + Preview (Minimal Card) */}
       {!showNamePrompt && (
-        <div className="w-full max-w-3xl bg-white shadow-xl rounded-xl p-8 border border-purple-200 z-0">
-          <h2 className="text-3xl font-bold text-purple-700 text-center mb-6">
-            Customer Details
-          </h2>
-
-          {/* 3D Preview */}
-          {modelUrl && (
-            <div className="w-full flex justify-center mb-6">
-              <div className="w-64 h-64 bg-gray-100 border border-purple-300 rounded-xl overflow-hidden">
+        <div className="w-full max-w-4xl bg-white shadow-xl rounded-xl p-8 border border-gray-100 z-0 grid md:grid-cols-2 gap-8">
+          {/* Left Side: 3D Preview */}
+          <div className="flex flex-col items-center">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 tracking-tight">
+              Design Preview
+            </h2>
+            {modelUrl && (
+              <div className="w-full max-w-xs h-80 bg-gray-100 border border-gray-200 rounded-xl overflow-hidden shadow-inner">
                 <Canvas camera={{ position: [0, 0, 2.5] }}>
                   <ambientLight intensity={0.9} />
                   <OrbitControls enableZoom={false} />
                   <Luga URL={modelUrl} />
                 </Canvas>
               </div>
-            </div>
-          )}
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {designName && (
-              <div className="text-center font-medium text-purple-600 bg-purple-100 py-2 rounded-md">
+            {/* Design Name Display */}
+            {designName.trim() && (
+              <div className="mt-4 text-center font-medium text-indigo-600 bg-indigo-50 px-4 py-2 rounded-lg text-sm border border-indigo-200">
                 Design Name: <span className="font-bold">{designName}</span>
               </div>
             )}
+          </div>
 
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-purple-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-              required
-            />
-            <input
-              type="text"
-              name="address"
-              placeholder="Address"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-purple-300 rounded-lg shadow-sm"
-              required
-            />
-            <div className="grid grid-cols-2 gap-4">
+          {/* Right Side: Customer Form */}
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 tracking-tight border-b pb-2">
+              Shipping & Order Details
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Phone & Address */}
               <input
-                type="text"
-                name="city"
-                placeholder="City"
-                value={formData.city}
+                type="tel"
+                name="phone"
+                placeholder="Phone Number"
+                value={formData.phone}
                 onChange={handleChange}
-                className="px-4 py-3 border border-purple-300 rounded-lg shadow-sm"
+                // Minimal input style
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
               />
               <input
                 type="text"
-                name="state"
-                placeholder="State"
-                value={formData.state}
+                name="address"
+                placeholder="Shipping Address (Street/House No.)"
+                value={formData.address}
                 onChange={handleChange}
-                className="px-4 py-3 border border-purple-300 rounded-lg shadow-sm"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
               />
-            </div>
-            <input
-              type="text"
-              name="zip"
-              placeholder="ZIP Code"
-              value={formData.zip}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-purple-300 rounded-lg shadow-sm"
-              required
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <select
-                name="preferredSize"
-                value={formData.preferredSize}
-                onChange={handleChange}
-                className="px-4 py-3 border border-purple-300 rounded-lg shadow-sm"
-                required>
-                <option value="">Select Size</option>
-                <option value="S">Small</option>
-                <option value="M">Medium</option>
-                <option value="L">Large</option>
-                <option value="XL">Extra Large</option>
-              </select>
-              <input
-                type="number"
-                name="quantity"
-                placeholder="Quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                min="1"
-                className="px-4 py-3 border border-purple-300 rounded-lg shadow-sm"
-                required
-              />
-            </div>
 
-            <button
-              type="submit"
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-md">
-              Submit Details & Choose Payment
-            </button>
-          </form>
+              {/* City, State, ZIP */}
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="City"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+                <input
+                  type="text"
+                  name="state"
+                  placeholder="State/Province"
+                  value={formData.state}
+                  onChange={handleChange}
+                  className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <input
+                type="text"
+                name="zip"
+                placeholder="ZIP / Postal Code"
+                value={formData.zip}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+
+              {/* Size & Quantity */}
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <select
+                  name="preferredSize"
+                  value={formData.preferredSize}
+                  onChange={handleChange}
+                  className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                  required>
+                  <option value="" disabled>
+                    Select Size
+                  </option>
+                  <option value="S">Small (S)</option>
+                  <option value="M">Medium (M)</option>
+                  <option value="L">Large (L)</option>
+                  <option value="XL">Extra Large (XL)</option>
+                </select>
+                <input
+                  type="number"
+                  name="quantity"
+                  placeholder="Quantity"
+                  value={formData.quantity}
+                  onChange={handleChange}
+                  min="1"
+                  className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+
+              {/* Submit Button (Primary Accent) */}
+              <button
+                type="submit"
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-lg mt-6">
+                Submit Details & Proceed to Payment
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </div>

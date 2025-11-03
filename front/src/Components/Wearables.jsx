@@ -23,8 +23,8 @@ export default function Wearables() {
       <div className="absolute bottom-10 left-32 w-64 h-64 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
 
       <div className="max-w-4xl mx-auto text-center relative z-10">
-        <h1 className="text-4xl sm:text-5xl font-bold text- mb-4 font-coda text-purple-300 uppercase ">
-          Choose what to <span className="text-teal-500">Design</span>
+        <h1 className="text-4xl sm:text-5xl font-bold text- mb-4 font-coda text-black/50  ">
+          Start <span className="text-teal-500"> designing</span>
         </h1>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10">
           {items.map((item) => (
