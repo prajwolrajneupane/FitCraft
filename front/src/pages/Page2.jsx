@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { Environment, OrbitControls } from "@react-three/drei";
@@ -19,6 +19,8 @@ function Luga({ URL, position = [0, 0, 0] }) {
 }
 
 function Page2() {
+  const navigate = useNavigate();
+
   const [designs, setDesigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,11 +86,7 @@ function Page2() {
                       minDistance={1.5}
                       maxDistance={4}
                     />
-                    {item.model && (
-                      <Luga
-                        URL={`http://localhost:5000/uploads/${item.model}`}
-                      />
-                    )}
+                    <Luga URL={item.modelUrl} />
                   </Canvas>
                 </div>
 
@@ -106,19 +104,13 @@ function Page2() {
 
                 {/* Action Buttons */}
                 <div className="mt-4 flex justify-center gap-4">
-                  <Link
-                    to={`/details`}
-                    state={{ design: item }}
-                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-5 rounded-full shadow-md transition-transform hover:scale-105">
+                  <button
+                    onClick={() =>
+                      navigate("/buy-now", { state: { designId: item._id } })
+                    }
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
                     Buy Now
-                  </Link>
-
-                  <Link
-                    to={`/Canvas/${item.designName}`}
-                    state={item}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-5 rounded-full shadow-md transition-transform hover:scale-105">
-                    Modify
-                  </Link>
+                  </button>
                 </div>
               </div>
             ))}

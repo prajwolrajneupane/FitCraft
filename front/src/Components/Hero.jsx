@@ -1,36 +1,41 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
+import background from "/background.png";
 
 function Hero() {
   return (
-    <>
-      <div className='h-screen w-full bg-amber-500'>
-        <video
-          className="absolute top-0 left-0 w-full h-full object-cover z-0" 
-          autoPlay
-          muted
-          loop
-          playsInline
-        >
-          <source src={"/fitcraft.mp4"} type="video/mp4" />
-        </video>
-        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50 z-10"></div>
+    <div
+      className="h-[780px] w-full bg-cover bg-no-repeat bg-center relative flex justify-center items-center flex-col gap-8"
+      style={{ backgroundImage: `url(${background})` }}>
+      {/* Overlay */}
+      <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-10 pointer-events-none backdrop-blur-sm"></div>
 
-        <div className='absolute text-center top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-white text-xs md:text-base lg:text-lg xl:text-xl  '>
-          FitCraft enables users to design personalized wearables using built-in drawing tools, image uploads, or AI-generated graphics.
-        </div>
+      {/* Title */}
+      <h1 className="z-20 text-6xl md:text-7xl font-extrabold tracking-wide flex items-center gap-2">
+        <span className="text-[#00BFFF] drop-shadow-[0_0_10px_#00BFFF]">
+          Fit
+        </span>
+        <span className="text-[#9810FA] drop-shadow-[0_0_10px_#9810FA]">
+          Craft
+        </span>
+      </h1>
 
-        <h1 className='absolute top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-white text-5xl font-bold'>
-          FitCraft
-        </h1>
+      {/* Tagline */}
+      <p className="z-20 text-white/90 text-center text-sm md:text-lg lg:text-xl max-w-2xl leading-relaxed px-4">
+        Design your dream wearables using creative tools — from drawing and
+        image uploads to AI-generated art. Express your style effortlessly.
+      </p>
 
-         <Link to="/Wearables">
-        <button className='rounded-full cursor-pointer absolute top-[75%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 py-5 px-10 bg-white text-black'>
+      {/* Button */}
+      <Link to="/Wearables" className="z-20">
+        <button className="rounded-full py-4 px-10 bg-blue-400 text-white font-semibold text-lg shadow-lg hover:scale-105 transition-all duration-300 ease-in-out">
           Create Now
         </button>
-         </Link>
-      </div>
-    </>
+      </Link>
+
+      {/* Decorative glowing border */}
+      <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#00BFFF] via-white to-[#9810FA] opacity-70 blur-sm"></div>
+    </div>
   );
 }
 

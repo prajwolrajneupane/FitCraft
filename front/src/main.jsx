@@ -12,6 +12,7 @@ import EsewaSuccess from "./pages/EsewaSuccess";
 import EsewaFailure from "./pages/EsewaFailure";
 
 import PaymentOptions from "./pages/PaymentOptions.jsx";
+import ProductDetailPage from "./pages/ProductDetailPage.jsx";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./Login/Login.jsx";
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
   {
     path: "/checkout",
     element: <Checkout />,
+  },
+  {
+    path: "/buy-now",
+    element: <ProductDetailPage />,
   },
 ]);
 createRoot(document.getElementById("root")).render(

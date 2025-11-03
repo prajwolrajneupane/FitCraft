@@ -67,7 +67,7 @@ app.post("/api/save", verifyToken, upload.single("model"), async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
+let Name;
 // Update latest model name
 app.post("/api/update-latest-model-name", verifyToken, async (req, res) => {
   const { modelName } = req.body;

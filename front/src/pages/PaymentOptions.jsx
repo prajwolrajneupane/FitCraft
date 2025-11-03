@@ -4,7 +4,7 @@ import axios from "axios";
 
 const PaymentOptions = () => {
   const location = useLocation();
-  const modelUrl = location.state?.modelUrl;
+  const { modelUrl, designName } = location.state || {};
 
   const [showPermission, setShowPermission] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -13,13 +13,12 @@ const PaymentOptions = () => {
 
   const handlePermissionResponse = async (allow) => {
     setShowPermission(false);
-    console.log("User permission:", allow ? "Allowed" : "Denied");
 
     if (allow && modelUrl) {
       try {
         await axios.post("http://localhost:5000/api/approved", {
           modelUrl,
-          designName: "User Custom Design",
+          designName: designName || "Untitled Design", // ✅ use name from Details
           thumbnailUrl: "/uploads/defaultThumbnail.png", // or generate dynamically
         });
         console.log("Design approved and saved!");

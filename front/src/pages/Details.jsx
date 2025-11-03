@@ -1,104 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
-import { Canvas } from '@react-three/fiber';
-import { Environment, OrbitControls } from '@react-three/drei';
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import Luga from "./Luga";
+import KinaAais from "./KinaAais.jsx";
 
-import Luga from './Luga'; // 3D Model Viewer
-import KinaAais from './KinaAais.jsx';
-const Details = ({ modwal }) => {
+const Details = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { modelUrl } = location.state || {}; // Receive model URL from BuyNow
+  const { modelUrl } = location.state || {};
 
-  // ✅ Show warning and stop everything if no model selected
-  if (!modelUrl) {
-   return(<KinaAais/>)
-  }
-
+  // ✅ Stop if no model selected
+  if (!modelUrl) return <KinaAais />;
 
   const [showNamePrompt, setShowNamePrompt] = useState(true);
   const [wantsToName, setWantsToName] = useState(false);
-  const [designName, setDesignName] = useState('');
+  const [designName, setDesignName] = useState("");
 
   const [formData, setFormData] = useState({
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zip: '',
-    preferredSize: '',
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    preferredSize: "",
     quantity: 1,
-    designName: '',
   });
 
-  const handleDesignNameSubmit = async () => {
-    setFormData(prev => ({ ...prev, designName }));
-
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return navigate('/login');
-
-      // Update latest model's name in database
-      await axios.post('http://localhost:5000/api/update-latest-model-name', {
-        modelName: designName,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    } catch (err) {
-      console.error('Failed to save model name:', err);
-    }
-
+  const handleDesignNameSubmit = () => {
     setShowNamePrompt(false);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'quantity' ? Math.max(1, Number(value)) : value,
+      [name]: name === "quantity" ? Math.max(1, Number(value)) : value,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate('/payment-options', 
 
-      {state: { modelUrl: modelUrl }}
-    );
+    navigate("/payment-options", {
+      state: {
+        modelUrl,
+        designName: designName.trim() || "Untitled Design", // ✅ pass design name
+      },
+    });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-200 to-purple-300 flex items-center justify-center p-6 relative">
-
       {/* Design Name Modal */}
       {showNamePrompt && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/10">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-md text-center">
             {!wantsToName ? (
               <>
-                <h2 className="text-xl font-semibold text-purple-700 mb-2">Would you like to name your design?</h2>
-                <p className="mb-4 text-gray-600">This helps you organize your orders better.</p>
+                <h2 className="text-xl font-semibold text-purple-700 mb-2">
+                  Would you like to name your design?
+                </h2>
+                <p className="mb-4 text-gray-600">
+                  This helps you organize your orders better.
+                </p>
                 <div className="flex justify-center gap-4">
                   <button
                     onClick={() => setWantsToName(true)}
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
-                  >
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
                     Yes
                   </button>
                   <button
                     onClick={() => setShowNamePrompt(false)}
-                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
-                  >
+                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition">
                     No
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <h2 className="text-xl font-semibold text-purple-700 mb-2">Enter a name for your design</h2>
+                <h2 className="text-xl font-semibold text-purple-700 mb-2">
+                  Enter a name for your design
+                </h2>
                 <input
                   type="text"
                   value={designName}
@@ -109,8 +92,7 @@ const Details = ({ modwal }) => {
                 <button
                   onClick={handleDesignNameSubmit}
                   className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition w-full"
-                  disabled={!designName.trim()}
-                >
+                  disabled={!designName.trim()}>
                   Save & Continue
                 </button>
               </>
@@ -122,7 +104,9 @@ const Details = ({ modwal }) => {
       {/* Main Form + Preview */}
       {!showNamePrompt && (
         <div className="w-full max-w-3xl bg-white shadow-xl rounded-xl p-8 border border-purple-200 z-0">
-          <h2 className="text-3xl font-bold text-purple-700 text-center mb-6">Customer Details</h2>
+          <h2 className="text-3xl font-bold text-purple-700 text-center mb-6">
+            Customer Details
+          </h2>
 
           {/* 3D Preview */}
           {modelUrl && (
@@ -138,9 +122,9 @@ const Details = ({ modwal }) => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {formData.designName && (
+            {designName && (
               <div className="text-center font-medium text-purple-600 bg-purple-100 py-2 rounded-md">
-                Design Name: <span className="font-bold">{formData.designName}</span>
+                Design Name: <span className="font-bold">{designName}</span>
               </div>
             )}
 
@@ -197,8 +181,7 @@ const Details = ({ modwal }) => {
                 value={formData.preferredSize}
                 onChange={handleChange}
                 className="px-4 py-3 border border-purple-300 rounded-lg shadow-sm"
-                required
-              >
+                required>
                 <option value="">Select Size</option>
                 <option value="S">Small</option>
                 <option value="M">Medium</option>
@@ -219,8 +202,7 @@ const Details = ({ modwal }) => {
 
             <button
               type="submit"
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-md"
-            >
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-md">
               Submit Details & Choose Payment
             </button>
           </form>

@@ -1,3 +1,127 @@
 @import "tailwindcss";
 
+@keyframes blob {
+  /* Start Position: Slightly to the left of its initial position */
+  0%,
+  100% {
+    transform: translate(-10%, 0%) scale(1);
+  }
+  /* First keyframe: Move significantly to the right and slightly down */
+  40% {
+    transform: translate(30%, 5%) scale(1.05);
+  }
+  /* Second keyframe: Move further right and slightly up, with a subtle scale decrease */
+  75% {
+    transform: translate(60%, -5%) scale(0.95);
+  }
+}
 
+/* Define the animation utility class */
+.animate-blob {
+  /* Increased duration to 15s (from 7s) and added ease-in-out for silky smoothness */
+  animation: blob 15s infinite ease-in-out;
+}
+
+/* Optional: Define animation delays if needed */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Coda:wght@400;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=K2D:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap");
+
+body {
+  padding-left: 40px;
+  padding-right: 20px;
+  background-color: white;
+
+  background-size: 40px 40px;
+  z-index: -10;
+}
+@theme {
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-comfortaa: "Comfortaa", sans-serif;
+  --font-ktd: "K2D", sans-serif;
+  --font-coda: "Coda", sans-serif;
+  --font-nunitosans: "Nunito Sans", sans-serif;
+
+  --color-parewacreamcanprimary-100: #f3c56d;
+  --color-parewacreamcanprimary-200: #dbb162;
+  --color-parewacreamcanprimary-300: #c29e57;
+  --color-parewacreamcanprimary-400: #aa8a4c;
+  --color-parewacreamcanprimary-500: #7a6337;
+  --color-matte: #1b1b1b;
+
+  --breakpoint-xxs: 260px;
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  --breakpoint-3xl: 1920px;
+  --breakpoint-4xl: 2560px;
+  --breakpoint-5xl: 3840px;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 1rem;
+  }
+
+  .no-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #7a5a19;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: #8b8b8b transparent;
+    margin-bottom: 12px;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-in-out;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+@keyframes move {
+  0% {
+    transform: translateX(0);
+    background: red;
+  }
+  50% {
+    transform: translateX(100px);
+    background: yellow;
+  }
+  100% {
+    transform: translateX(0);
+    background: red;
+  }
+}
