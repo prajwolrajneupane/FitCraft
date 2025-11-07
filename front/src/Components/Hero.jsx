@@ -18,8 +18,8 @@ function Hero() {
 
       {/* Tagline */}
       <p className="z-20 text-white/90 text-center text-sm md:text-lg lg:text-xl max-w-2xl leading-relaxed px-4">
-        Design your dream wearables using creative tools — from drawing and
-        image uploads to AI-generated art. Express your style effortlessly.
+        Design your dream wearables using creative tools - from drawing and
+        image uploads. Express your style effortlessly.
       </p>
 
       {/* Button */}
