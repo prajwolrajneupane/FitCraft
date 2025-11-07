@@ -30,6 +30,42 @@ import { useImage } from "react-konva-utils";
 
 const CANVAS_SIZE = 600;
 
+// --- UTILITY FUNCTIONS FOR KEYWORD EXTRACTION ---
+
+/**
+ * Extracts and cleans keywords from all text elements.
+ * @param {Array} texts - The array of text objects from the editor state.
+ * @returns {string} - A comma-separated string of unique, non-trivial keywords.
+ */
+const extractKeywords = (texts) => {
+  const commonWords = new Set([
+    "a",
+    "an",
+    "the",
+    "is",
+    "am",
+    "are",
+    "in",
+    "on",
+    "at",
+    "to",
+    "for",
+    "with",
+    "and",
+    "but",
+    "or",
+    "new",
+    "text",
+  ]);
+
+  return texts
+    .map((t) => t.text.toLowerCase().split(/\s+/))
+    .flat()
+    .filter((word) => word.length > 2 && !commonWords.has(word))
+    .filter((value, index, self) => self.indexOf(value) === index) // Unique words
+    .join(",");
+};
+
 // 3d luga harko lagi
 function Dress({ canvasTextures, shirtColor, dressRef }) {
   const { name } = useParams();
@@ -171,6 +207,11 @@ function App() {
   const dressRef = useRef();
 
   const navigate = useNavigate();
+  const location = useLocation(); // Use location to get the apparel type
+
+  // --- NEW: Recommendation State and Apparel Type ---
+  // Get the item type from the location state passed from the routing page
+  const currentApparelType = location.state?.category || "T-Shirt"; // Default to 'T-Shirt' if not found
 
   const [activeSide, setActiveSide] = useState("Front");
 
@@ -212,11 +253,122 @@ function App() {
   const [isImageSelected, setIsImageSelected] = useState(false);
   const [lastPos, setLastPos] = useState(null);
 
+  // --- NEW: Recommendation Fetching Logic ---
+  const [recommendations, setRecommendations] = useState(null); // null = loading
+  const [recError, setRecError] = useState(null);
+
+  function debounce(fn, delay) {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      setRecommendations(null); // loading
+      setRecError(null);
+
+      const allTexts = [...frontData.texts, ...backData.texts];
+      const designKeywords = extractKeywords(allTexts);
+
+      const hasImage = frontData.imgUrl || backData.imgUrl;
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setRecError("Login to get recommendations.");
+        setRecommendations([]);
+        return;
+      }
+
+      try {
+        const res = await axios.get(
+          "http://localhost:5000/api/recommendations",
+          {
+            params: {
+              apparelType: currentApparelType,
+              keywords: designKeywords,
+              hasImage, // optional, backend can use it for filtering
+            },
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const recsArray = Array.isArray(res.data)
+          ? res.data
+          : res.data.data || [];
+        setRecommendations(recsArray);
+      } catch (err) {
+        console.error("Fetching recommendations failed:", err);
+        setRecError("Failed to load recommendations.");
+        setRecommendations([]);
+      }
+    };
+
+    // debounce the fetch for 500ms
+    const debouncedFetch = debounce(fetchRecommendations, 500);
+    debouncedFetch();
+  }, [
+    frontData.texts,
+    backData.texts,
+    frontData.lines,
+    backData.lines,
+    frontData.imgUrl,
+    backData.imgUrl,
+    currentApparelType,
+  ]);
+
   //----- okay so when the user clicks buy now, the model is downloaded first and sent to the backend to proceed-------//
   const buyNow = async () => {
-    // Ensure latest Konva drawing is synced
-    syncStageToTexture();
+    syncStageToTexture(); // make sure canvas is synced
+    const allTexts = [...frontData.texts, ...backData.texts];
 
+    // --- Dynamic fields based on current editor ---
+    const hasText = allTexts.length > 0;
+    const hasImage = frontData.imgUrl !== null || backData.imgUrl !== null;
+
+    const tags = [];
+    if (hasText) tags.push("text");
+    if (hasImage) tags.push("image");
+
+    // Optional: detect "handdrawn" lines
+    const hasHandDrawn =
+      frontData.lines.some((l) => l.tool === "pencil") ||
+      backData.lines.some((l) => l.tool === "pencil");
+    if (hasHandDrawn) tags.push("handdrawn");
+
+    // Design complexity: simple metric
+    const designComplexity =
+      frontData.lines.length +
+      backData.lines.length +
+      frontData.texts.length +
+      backData.texts.length +
+      (frontData.imgUrl ? 1 : 0) +
+      (backData.imgUrl ? 1 : 0);
+
+    // Extract keywords from texts + tags
+    const textKeywords = extractKeywords(allTexts).split(",");
+    const keywordSet = new Set([...textKeywords, ...tags]); // combine with tags
+    const keywords = Array.from(keywordSet);
+
+    const token = localStorage.getItem("token");
+
+    // ✅ Save keywords to backend first
+    if (token && keywords.length > 0) {
+      try {
+        await axios.post(
+          "http://localhost:5000/api/user/keywords",
+          { keywords },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log("Keywords updated:", keywords);
+      } catch (err) {
+        console.error("Error saving keywords:", err);
+      }
+    }
+
+    // ✅ Export and upload GLTF with metadata
     const dressObject = dressRef.current;
     if (!dressObject) return;
 
@@ -226,35 +378,38 @@ function App() {
       async (result) => {
         const output = JSON.stringify(result, null, 2);
         const blob = new Blob([output], { type: "application/json" });
-
         const formData = new FormData();
-        // included filename 'lugaFata.glb' //yo chai naam dya ho so that backend ma ni yo naam ko prayog hos// backend ma heresi dekhinxa
         formData.append("model", blob, "lugaFata.glb");
-        // "model" lekhya multer ko lagi ho, blob ta luga nei send garya vaigo
+
+        // Append dynamic metadata
+        formData.append(
+          "metadata",
+          JSON.stringify({
+            shirtColor,
+            hasText,
+            hasImage,
+            tags,
+            designComplexity,
+            keywords, // send keywords along with the model
+          })
+        );
 
         try {
-          const token = localStorage.getItem("token");
-          if (token) {
-            const res = await axios.post(
-              "http://localhost:5000/api/save",
-              formData,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "multipart/form-form-data",
-                },
-                // exactly what we did for the user page haina, sending the token from the localStorage to backend for user ko Jankari
-                // content type teso chai hamle model singai pathauna parya vayera lekhya (solely for that);
-              }
-            );
+          if (!token) return navigate("/login");
+          const res = await axios.post(
+            "http://localhost:5000/api/save",
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
 
-            const fileName = res.data.model; // backend returns just filename
-            const modelUrl = `http://localhost:5000/uploads/${fileName}`; // construct full URL
-
-            navigate("/details", { state: { modelUrl } }); // pass model URL to details page
-          } else {
-            navigate("/login");
-          }
+          const fileName = res.data.model;
+          const modelUrl = `http://localhost:5000/uploads/${fileName}`;
+          navigate("/details", { state: { modelUrl } });
         } catch (error) {
           console.error(
             "Upload failed:",
@@ -262,7 +417,7 @@ function App() {
           );
         }
       },
-      { binary: false } // false means export as JSON (.gltf), true means binary (.glb)
+      { binary: false }
     );
   };
 
@@ -852,6 +1007,7 @@ function App() {
           Buy Now
         </button>
       </div>
+      {/*  */}
     </div>
   );
 }

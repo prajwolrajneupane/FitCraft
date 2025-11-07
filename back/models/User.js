@@ -1,8 +1,9 @@
+// models/User.js
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   name: String,
-  email: { type: String, unique: true },
+  email: String,
   password: String,
   models: [
     {
@@ -10,7 +11,7 @@ const userSchema = new mongoose.Schema({
       modelName: String,
     },
   ],
+  keywords: [String], // ← Add this for recommendation keywords
 });
 
-const User = mongoose.models.User || mongoose.model("User", userSchema);
-export default User;
+export default mongoose.model("User", UserSchema);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { Environment, OrbitControls } from "@react-three/drei";
@@ -20,11 +20,36 @@ function Luga({ URL, position = [0, 0, 0] }) {
 
 function Page2() {
   const navigate = useNavigate();
-
   const [designs, setDesigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Get token from localStorage (assuming login saves it)
+  const token = localStorage.getItem("token");
+
+  // ✅ Handle Buy Now click
+  const handleBuyNow = async (item) => {
+    if (!token) return alert("Please login first!");
+
+    // Split design name into keywords
+    const keywords = item.designName
+      ? item.designName.toLowerCase().split(" ")
+      : [];
+
+    try {
+      await axios.post(
+        "http://localhost:5000/api/user/keywords",
+        { keywords },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      navigate("/buy-now", { state: { designId: item._id } });
+    } catch (err) {
+      console.error("Error saving keywords:", err);
+    }
+  };
+
+  // Fetch approved designs
   useEffect(() => {
     const fetchDesigns = async () => {
       try {
@@ -68,7 +93,7 @@ function Page2() {
 
         {designs.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {designs.map((item, index) => (
+            {designs.map((item) => (
               <div
                 key={item._id}
                 className="bg-white rounded-xl shadow-md border border-gray-200 p-4 flex flex-col justify-between">
@@ -95,19 +120,12 @@ function Page2() {
                   <h3 className="text-lg font-semibold text-gray-800">
                     {item.designName || "Untitled Design"}
                   </h3>
-                  {item.model && (
-                    <p className="mt-1 text-sm text-gray-500">
-                      Model: {item.model}
-                    </p>
-                  )}
                 </div>
 
-                {/* Action Buttons */}
+                {/* Buy Now Button */}
                 <div className="mt-4 flex justify-center gap-4">
                   <button
-                    onClick={() =>
-                      navigate("/buy-now", { state: { designId: item._id } })
-                    }
+                    onClick={() => handleBuyNow(item)}
                     className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
                     Buy Now
                   </button>

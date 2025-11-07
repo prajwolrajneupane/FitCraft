@@ -1,69 +1,77 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/signup', form);
-      alert('Signup successful!');
-      navigate('/login'); // Redirect to login after signup
+      await axios.post("http://localhost:5000/api/auth/signup", form);
+      alert("Signup successful!");
+      navigate("/login"); // Redirect to login after signup
     } catch (err) {
-      alert(err.response?.data?.message || 'Signup failed');
+      alert(err.response?.data?.message || "Signup failed");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-200 to-purple-300 flex items-center justify-center px-4">
-      <div className="bg-white shadow-lg rounded-xl w-full max-w-md p-8 border border-purple-200">
-        <h2 className="text-3xl font-bold text-center text-purple-700 mb-6">Create Account</h2>
+    // Updated: Darker background (like the footer in the image)
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
+      {/* Updated: Container with border/shadow, darker scheme */}
+      <div className="bg-gray-800 shadow-xl rounded-lg w-full max-w-md p-8 border border-gray-700">
+        {/* Updated: Heading to match the main accent color (teal/cyan) */}
+        <h2 className="text-3xl font-bold text-center text-teal-400 mb-8">
+          Create Account
+        </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <input
             type="text"
             placeholder="Full Name"
             value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
-            className="w-full p-3 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            // Updated: Dark input fields with lighter text/placeholder and teal focus ring
+            className="w-full p-3 border border-gray-600 bg-gray-700 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-400"
           />
 
           <input
             type="email"
             placeholder="Email"
             value={form.email}
-            onChange={e => setForm({ ...form, email: e.target.value })}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
             required
-            className="w-full p-3 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            // Updated: Dark input fields with lighter text/placeholder and teal focus ring
+            className="w-full p-3 border border-gray-600 bg-gray-700 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-400"
           />
 
           <input
             type="password"
             placeholder="Password"
             value={form.password}
-            onChange={e => setForm({ ...form, password: e.target.value })}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
             required
-            className="w-full p-3 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            // Updated: Dark input fields with lighter text/placeholder and teal focus ring
+            className="w-full p-3 border border-gray-600 bg-gray-700 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-400"
           />
 
           <button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-md transition duration-200"
-          >
+            // Updated: Button with the primary accent color (teal/cyan)
+            className="w-full bg-teal-500 hover:bg-teal-400 text-gray-900 font-bold py-3 rounded-md transition duration-200 shadow-lg">
             Sign Up
           </button>
         </form>
 
-        <p className="mt-6 text-center text-gray-600">
-          Yes, have an account?{' '}
+        {/* Updated: Text color and link color to match the dark theme and accent */}
+        <p className="mt-8 text-center text-gray-400">
+          Already have an account?{" "}
           <Link
             to="/login"
-            className="text-purple-600 hover:text-purple-800 font-medium"
-          >
+            className="text-teal-400 hover:text-teal-300 font-medium transition duration-150">
             Login
           </Link>
         </p>

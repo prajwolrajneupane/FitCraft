@@ -1,42 +1,29 @@
 import express from "express";
-// done cause needed
 import mongoose from "mongoose";
-// done cause needed
-
 import cors from "cors";
-// front ra back kura garna milos vanera. CORS is basically set of rules which allows back and front to communicate,
 import dotenv from "dotenv";
-// chairakhne data haru euta thau ma xa and thats dotenv
 import multer from "multer";
-// needed to upload photos videos and shit like that.Its a middleware
 import jwt from "jsonwebtoken";
-// Used for generating and verifying JSON Web Tokens (JWTs), essential for user authentication.
+
 import ApprovedDesignModel from "./models/ApprovedDesign.model.js";
-// User le allow thicheko designs haru ko structure.
-
-// eSewa import
 import { generateSignature } from "./routes/utils/generateSignature.js";
-
 import authRoutes from "./routes/auth.js";
 import User from "./models/User.js";
 import verifyToken from "./middleware/verifyToken.js";
+import Shirt from "./models/Shirt.model.js"; // ✅ added for recommendations
 
 dotenv.config();
-// done cause needed
 const app = express();
-// done cause needed
 
-// Middleware
+// ---------- MIDDLEWARE ----------
 app.use(cors());
-// this simply means use cors.. we have no parameter so no rules on how back and front will be comminicating.
 app.use(express.json());
-// Serve uploaded files statically
 app.use("/uploads", express.static("uploads"));
 
-// Auth routes
+// ---------- ROUTES ----------
 app.use("/api/auth", authRoutes);
 
-//  Get user profile (token protected)
+// ✅ Protected route: get user profile
 app.get("/api/user/profile", verifyToken, async (req, res) => {
   try {
     res.json({
@@ -50,27 +37,44 @@ app.get("/api/user/profile", verifyToken, async (req, res) => {
   }
 });
 
-// Multer for .glb uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads"),
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
 const upload = multer({ storage });
 
-// Save uploaded model to user's record
+// ✅ Save uploaded model to user's record + Shirt model for recommendations
 app.post("/api/save", verifyToken, upload.single("model"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
+    // Metadata from frontend (optional)
+    const metadata = req.body.metadata ? JSON.parse(req.body.metadata) : {};
+
+    // Save in user collection
     req.mula.models.push({
       model: req.file.filename,
-      modelName: null,
+      modelName: metadata.modelName || null,
     });
-
     await req.mula.save();
 
+    // Save in Shirt model (for recommendation system)
+    const newShirt = new Shirt({
+      userId: req.mula._id,
+      modelUrl: `http://localhost:5000/uploads/${req.file.filename}`,
+      designName: metadata.designName || "Untitled Design",
+      shirtColor: metadata.shirtColor || "unknown",
+      hasText: metadata.hasText || false,
+      hasImage: metadata.hasImage || false,
+      dominantColors: metadata.dominantColors || [],
+      designComplexity: metadata.designComplexity || 1,
+      tags: metadata.tags || [],
+    });
+
+    await newShirt.save();
+
     res.status(200).json({
-      message: "Model uploaded and saved to user",
+      message: "Model uploaded, saved to user and recommendation DB",
       model: req.file.filename,
     });
   } catch (err) {
@@ -78,11 +82,10 @@ app.post("/api/save", verifyToken, upload.single("model"), async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-let Name;
-// Update latest model name
+
+// ✅ Update latest model name
 app.post("/api/update-latest-model-name", verifyToken, async (req, res) => {
   const { modelName } = req.body;
-
   try {
     const latestModel = req.mula.models[req.mula.models.length - 1];
     if (!latestModel) {
@@ -99,6 +102,7 @@ app.post("/api/update-latest-model-name", verifyToken, async (req, res) => {
   }
 });
 
+// ✅ Approve and save design
 app.post("/api/approved", async (req, res) => {
   const { userId, designName, modelUrl, thumbnailUrl } = req.body;
   try {
@@ -115,7 +119,7 @@ app.post("/api/approved", async (req, res) => {
   }
 });
 
-// Get all approved designs
+// ✅ Fetch all approved designs
 app.get("/api/approved", async (req, res) => {
   try {
     const designs = await ApprovedDesignModel.find().sort({ createdAt: -1 });
@@ -126,6 +130,7 @@ app.get("/api/approved", async (req, res) => {
   }
 });
 
+// ✅ Esewa signature route
 app.post("/api/generate-signature", (req, res) => {
   try {
     const {
@@ -160,6 +165,62 @@ app.post("/api/generate-signature", (req, res) => {
   }
 });
 
+app.get("/api/recommendations", verifyToken, async (req, res) => {
+  console.log("✅ Reached recommendations route");
+  console.log("req.mula:", req.mula); // Should print user data
+
+  try {
+    const allShirts = await Shirt.find();
+    const userShirts = await Shirt.find({ userId: req.mula._id });
+
+    console.log("User shirts count:", userShirts.length);
+
+    if (userShirts.length === 0) {
+      console.log("❌ No user shirts found");
+      return res.status(200).json({
+        designs: [],
+        message: "You have no designs yet for attribute-based recommendations.",
+      });
+    }
+
+    const latestDesign = userShirts[userShirts.length - 1];
+    console.log("Latest design:", latestDesign._id);
+
+    const recommended = allShirts.filter((shirt) => {
+      if (shirt.userId.equals(req.mula._id)) return false;
+      const textMatch = shirt.hasText === latestDesign.hasText;
+      const imageMatch = shirt.hasImage === latestDesign.hasImage;
+      const handdrawnMatch = shirt.handdrawn === latestDesign.handdrawn;
+      const colorMatch = shirt.shirtColor === latestDesign.shirtColor;
+      const complexityMatch =
+        Math.abs(shirt.designComplexity - latestDesign.designComplexity) <= 1;
+
+      const matchCount = [
+        textMatch,
+        imageMatch,
+        handdrawnMatch,
+        colorMatch,
+        complexityMatch,
+      ].filter(Boolean).length;
+
+      return matchCount >= 2;
+    });
+
+    console.log("Recommended designs count:", recommended.length);
+
+    res.status(200).json({
+      designs: recommended,
+      message: recommended.length
+        ? "Here are your personalized recommendations!"
+        : "No recommendations found.",
+    });
+  } catch (err) {
+    console.error("Server error in /recommendations:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ---------- DATABASE CONNECTION ----------
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() =>
@@ -171,4 +232,20 @@ mongoose
 
 app.get("/", (req, res) => {
   res.send("hello?");
+});
+
+app.post("/api/user/keywords", verifyToken, async (req, res) => {
+  const { keywords } = req.body; // ["black", "hoodie"]
+  try {
+    req.mula.keywords = req.mula.keywords || [];
+    req.mula.keywords.push(...keywords);
+    // Remove duplicates
+    req.mula.keywords = [...new Set(req.mula.keywords)];
+    console.log("req.mula:", req.mula);
+    await req.mula.save();
+    res.status(200).json({ message: "Keywords saved!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 });

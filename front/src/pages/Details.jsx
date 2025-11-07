@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import Luga from "./Luga";
 import KinaAais from "./KinaAais.jsx";
+import { Environment } from "@react-three/drei";
 
 // 💡 Using a minimal icon for the design name modal (Heroicons style)
 const PencilIcon = () => (
@@ -132,6 +133,8 @@ const Details = () => {
             {modelUrl && (
               <div className="w-full max-w-xs h-80 bg-gray-100 border border-gray-200 rounded-xl overflow-hidden shadow-inner">
                 <Canvas camera={{ position: [0, 0, 2.5] }}>
+                  <Environment preset="city" />
+
                   <ambientLight intensity={0.9} />
                   <OrbitControls enableZoom={false} />
                   <Luga URL={modelUrl} />
