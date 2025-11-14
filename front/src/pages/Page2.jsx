@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import axios from "axios";
+
 import { Canvas, useLoader } from "@react-three/fiber";
 import { Environment, OrbitControls } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -104,7 +106,7 @@ function Page2() {
                     style={{ width: "100%", height: "100%" }}>
                     <ambientLight intensity={0.8} />
                     <directionalLight position={[5, 10, 7]} intensity={1} />
-                    <Environment preset="sunset" />
+                    <Environment preset="city" />
                     <OrbitControls
                       enableZoom
                       enablePan={false}

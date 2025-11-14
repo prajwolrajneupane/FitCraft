@@ -1,7 +1,9 @@
 import { Environment } from "@react-three/drei";
+
 import React, { useRef, useEffect, useState, useCallback } from "react";
 //axios is for sending the Luga to the backend
 import axios from "axios";
+
 //use loader is for loading the Luga and usethree is for getting the camera anddddd useframe is for updating the texture
 import { Canvas, useLoader, useThree, useFrame } from "@react-three/fiber";
 // orbit controls is for rotating the Luga
@@ -323,7 +325,6 @@ function App() {
   const buyNow = async () => {
     syncStageToTexture(); // make sure canvas is synced
     const allTexts = [...frontData.texts, ...backData.texts];
-
     // --- Dynamic fields based on current editor ---
     const hasText = allTexts.length > 0;
     const hasImage = frontData.imgUrl !== null || backData.imgUrl !== null;

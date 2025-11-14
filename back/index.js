@@ -1,28 +1,40 @@
 import express from "express";
+//handles backend
 import mongoose from "mongoose";
+// gives simpler syntax to work with mongodb
 import cors from "cors";
+// front and back lai communicate garauna
 import dotenv from "dotenv";
+
+// dotenv le path harlai euta thau ma rakhna
 import multer from "multer";
+// image uploads haru handle garxa
 import _ from "lodash";
+// library ho jasle chai math ko kura haru easily dinxa
 
 import ApprovedDesignModel from "./models/ApprovedDesign.model.js";
+// hami sanga va models haru ya bata import vairako hun
 import authRoutes from "./routes/auth.js";
-import User from "./models/User.js";
+// tyo login signin ko lagi chaine haru aairako xa auth bata
 import verifyToken from "./middleware/verifyToken.js";
+//user good hoki haina vanera euta token generate hunxa that token is coming from this middleware
 import Shirt from "./models/Shirt.model.js";
-
+// har shirt ko property ya bata aauxa
 dotenv.config();
+//env use garda this ta garnai parxa
 const app = express();
-
+// express intitialize gareko ho yo chai
 // ---------- MIDDLEWARE ----------
 app.use(cors());
-app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+//jun sukai port ma pani communicate huna sakos vanera we are not passing any parametes to cors
 
+app.use(express.json());
+//dont know
+app.use("/uploads", express.static("uploads"));
+//yo chai hamro uploads haru yeta gayera basun vanera lekheko this is compulsary
 // ---------- ROUTES ----------
 app.use("/api/auth", authRoutes);
 
-// ---------- USER PROFILE ----------
 app.get("/api/user/profile", verifyToken, async (req, res) => {
   try {
     res.json({
@@ -35,6 +47,7 @@ app.get("/api/user/profile", verifyToken, async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 });
+// ekxin ma
 
 // ---------- MULTER SETUP ----------
 const storage = multer.diskStorage({
