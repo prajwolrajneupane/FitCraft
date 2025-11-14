@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "konva": "^9.3.20",
+    "lodash": "^4.17.21",
     "react-konva": "^19.0.4",
     "remixicon": "^4.6.0"
   }
