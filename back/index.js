@@ -143,7 +143,6 @@ app.get("/api/approved", async (req, res) => {
   }
 });
 
-// ---------- RECOMMENDATIONS ----------
 function vectorize(shirt, allColors, allCategories) {
   const binaryVector = [
     shirt.hasText ? 1 : 0,

@@ -26,10 +26,10 @@ function BuyNow() {
   const [error, setError] = useState(null);
 
   // Get designId from navigation state
-  const designId = state?.designId;
+  const modelUrl = state?.modelUrl;
 
   useEffect(() => {
-    if (!designId) {
+    if (!modelUrl) {
       setError("No design selected.");
       setLoading(false);
       return;

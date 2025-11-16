@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import AdminDashboard from "./AdminDashBoard.jsx";
+import AdminDashboard from "./AdminDashboard.jsx";
 import AdminUsers from "./AdminUsers";
 import AdminOrders from "./AdminOrders";
 import AdminLogin from "./AdminLogin";

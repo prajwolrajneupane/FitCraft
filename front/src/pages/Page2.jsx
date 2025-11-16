@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 import { Canvas, useLoader } from "@react-three/fiber";
@@ -29,7 +29,7 @@ function Page2() {
   // Get token from localStorage (assuming login saves it)
   const token = localStorage.getItem("token");
 
-  // ✅ Handle Buy Now click
+  //  Handle Buy Now click
   const handleBuyNow = async (item) => {
     if (!token) return alert("Please login first!");
 

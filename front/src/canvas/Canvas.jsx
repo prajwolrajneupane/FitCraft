@@ -73,20 +73,30 @@ function Dress({ canvasTextures, shirtColor, dressRef }) {
   const { name } = useParams();
   const location = useLocation();
   const items = location.state;
+  // items haru location state bata aairaxa vanesi.. its surely wearables
   const gltf = useLoader(GLTFLoader, items.threeD); //uta bata aairaxa
   const { camera } = useThree();
 
   // just to center the Luga biccha ma
   useEffect(() => {
     if (dressRef.current) {
+      // if the model is loaded:
       const box = new Box3().setFromObject(dressRef.current);
+      // box3 euta invisible boxa ho jasko vitra chai weve loaded our design to make it more precise to keep in center
       const center = new Vector3();
+      // x,y and zof the middle of the model
       const size = new Vector3();
+      // width, height, depth of the model
       box.getCenter(center);
+      //wrapper box ko center point herxa
       box.getSize(size);
+      // wrapper box ko size bata size aauxa
       dressRef.current.position.sub(center);
+      // set the current position of our box to be at the center
       const maxDim = Math.max(size.x, size.y, size.z);
+      // finds the maximum size amongst these 3
       camera.position.set(0, 0, maxDim * 2);
+      // z axis ma camera sabse tada ko point ma lagera rakhdinxa
       camera.lookAt(0, 0, 0);
     }
   }, [gltf, camera]);
@@ -103,20 +113,33 @@ function Dress({ canvasTextures, shirtColor, dressRef }) {
   useEffect(() => {
     if (dressRef.current) {
       dressRef.current.traverse((child) => {
+        // .traverse goes through all the objects and desecdent of the child
         if (child.isMesh && child.material) {
           //mesh ra material ho vane
 
           // Set texture map and shirt base color
           if (Array.isArray(child.material)) {
+            // What Array.isArray does
+
+            // JavaScript has objects and arrays.
+
+            // Array.isArray(x) → returns:
+
+            // true if x is an array
+
+            // false if x is anything else (like an object)
+
+            // so what its saying is, if the child material is array, loop through all the materials and implement the code below, if its not an array then just go to the else part.
             child.material.forEach((mat) => {
               mat.map = null;
               mat.needsUpdate = true;
               if (canvasTextures[mat.name]) {
                 mat.map = canvasTextures[mat.name];
+                //map everything thats in the canvasTextures[mat.name] onto the mat.map
                 mat.needsUpdate = true;
               }
               // Apply base color to material
-              mat.color.set(shirtColor);
+              mat.color.set(shirtColor); // mat ko color set gar as the user changes it
             });
           } else {
             const mat = child.material;
@@ -172,6 +195,7 @@ function Handler({
         draggable={tool === "cursor"}
         onClick={() => tool === "cursor" && onSelect()}
         onTap={() => tool === "cursor" && onSelect()}
+        // dragging
         onDragEnd={(e) => {
           onChange({
             ...imgProps,
@@ -181,13 +205,17 @@ function Handler({
             // and replace x and y with the new position of x and y
           });
         }}
+        //resizing/transforming
         onTransformEnd={() => {
           const node = shapeRef.current;
+          // shape ko current lera node vanya
           if (!node) return;
           const scaleX = node.scaleX();
+          // node ko scale x ko ra y ko leko
           const scaleY = node.scaleY();
 
           // Reset scale after applying
+          // onchange vayesi yo revert back to 1 and 1 but the width chai badne vayo tesaile the image will be bada
           node.scaleX(1);
           node.scaleY(1);
 
@@ -199,6 +227,7 @@ function Handler({
           });
         }}
       />
+      {/* conditional rendering, yedi isselected and tool is cursor the render the transformer */}
       {isSelected && tool === "cursor" && <Transformer ref={trRef} />}
     </>
   );
@@ -248,7 +277,7 @@ function App() {
 
   const [tool, setTool] = useState("cursor");
   const [pencilColor, setPencilColor] = useState("#000000");
-  const [textColor, setTextColor] = useState("skyblue");
+  const [textColor, setTextColor] = useState("black");
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectedTextId, setSelectedTextId] = useState(null);
   const [editingTextId, setEditingTextId] = useState(null);
